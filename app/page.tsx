@@ -103,11 +103,19 @@ export default function Home() {
   const [showAll, setShowAll] = useState(false);
 
   const inboxItems = [
-    { key: "william", name: "William Smith", project: "Ozempic Launch London", time: "09:34 AM" },
-    { key: "rosa", name: "Rosa Claramunt", project: "Ozempic Event Madrid", time: "09:34 AM" },
+    { key: "william", name: "William Smith", project: "Ozempic Launch London", time: "09:34 AM", evidences: 5 },
+    { key: "rosa", name: "Rosa Claramunt", project: "Ozempic Event Madrid", time: "09:34 AM", evidences: 3 },
+    { key: "james", name: "James Harding", project: "Wegovy Summit Berlin", time: "Yesterday", evidences: 7, preReviewed: true },
+    { key: "maria", name: "María López", project: "Ozempic Event Madrid", time: "Yesterday", evidences: 4, preReviewed: true },
+    { key: "anna", name: "Anna Petersen", project: "Rybelsus Launch Paris", time: "Mar 15", evidences: 6, preReviewed: true },
+    { key: "tom", name: "Tom Eriksson", project: "Wegovy Summit Berlin", time: "Mar 14", evidences: 2, preReviewed: true },
+    { key: "claire", name: "Claire Dupont", project: "Rybelsus Launch Paris", time: "Mar 13", evidences: 8, preReviewed: true },
   ];
-  const unreviewed = inboxItems.filter((it) => !reviewedItems.has(it.key));
-  const displayedItems = showAll ? inboxItems : unreviewed;
+  const isItemReviewed = (key: string) => reviewedItems.has(key) || inboxItems.find((it) => it.key === key)?.preReviewed === true;
+  const unreviewed = inboxItems.filter((it) => !isItemReviewed(it.key));
+  const displayedItems = showAll
+    ? [...inboxItems].sort((a, b) => (isItemReviewed(a.key) === isItemReviewed(b.key) ? 0 : isItemReviewed(a.key) ? 1 : -1))
+    : unreviewed;
   const badgeCount = unreviewed.length;
 
   const toneMessages = {
@@ -196,12 +204,13 @@ export default function Home() {
       </div>
       <div className="flex-1 overflow-y-auto">
         {displayedItems.map((item) => {
-          const isReviewed = reviewedItems.has(item.key);
+          const isReviewed = isItemReviewed(item.key);
           return PanelItem({
             key: item.key,
             name: item.name,
             project: item.project,
             time: item.time,
+            evidences: item.evidences,
             selected: selectedPanel === item.key,
             reviewed: isReviewed,
             onClick: isReviewed ? undefined : () => startReview(item.key),
@@ -213,10 +222,10 @@ export default function Home() {
       </div>
     </div>
   );
-  const PanelItem = ({ name, project, time, selected, reviewed, onClick }: { key?: string; name: string; project: string; time: string; selected?: boolean; reviewed?: boolean; onClick?: () => void }) => (
+  const PanelItem = ({ name, project, time, evidences = 5, selected, reviewed, onClick }: { key?: string; name: string; project: string; time: string; evidences?: number; selected?: boolean; reviewed?: boolean; onClick?: () => void }) => (
     <button onClick={onClick} disabled={reviewed} className={`w-full text-left px-4 py-3 border-b border-nn-100 transition-all duration-200 group ${reviewed ? "opacity-50 cursor-default" : ""} ${selected ? "bg-sea-50 border-l-[3px] border-l-sea-900" : "hover:bg-nn-50 active:bg-nn-100 border-l-[3px] border-l-transparent hover:border-l-nn-200"}`}>
       <div className="flex items-center justify-between mb-0.5"><span className={`text-[13px] font-medium transition-colors duration-200 ${reviewed ? "line-through text-nn-500" : "text-nn-900"} ${!selected && !reviewed ? "group-hover:text-sea-900" : ""}`}>{name}</span>{reviewed ? <span className="text-[10px] text-ocean-700 bg-ocean-50 px-1.5 py-0.5 rounded-full font-medium">Reviewed</span> : <span className="text-[11px] text-nn-400">{time}</span>}</div>
-      <div className="text-[12px] text-nn-700">{project}</div><div className="text-[11px] text-nn-400 mt-0.5">5 evidences in queue</div>
+      <div className="text-[12px] text-nn-700">{project}</div><div className="text-[11px] text-nn-400 mt-0.5">{evidences} evidences in queue</div>
     </button>
   );
 
@@ -243,7 +252,7 @@ export default function Home() {
       </div>
       <div className="p-4 space-y-2">
         {displayedItems.map((item, i) => {
-          const isReviewed = reviewedItems.has(item.key);
+          const isReviewed = isItemReviewed(item.key);
           return (
             <button key={item.key} onClick={isReviewed ? undefined : () => startReview(item.key)} disabled={isReviewed} className={`w-full text-left bg-white rounded-xl p-4 shadow-[0_1px_3px_rgba(0,25,101,0.04)] ${cx.cardTap} ${cx.card} ${isReviewed ? "opacity-50" : ""}`} style={{ animation: `slideUp .3s ease ${i * 0.08}s both` }}>
               <div className="flex items-center justify-between mb-1">
@@ -251,7 +260,7 @@ export default function Home() {
                 {isReviewed ? <span className="text-[10px] text-ocean-700 bg-ocean-50 px-1.5 py-0.5 rounded-full font-medium">Reviewed</span> : <span className="text-[12px] text-nn-400">{item.time}</span>}
               </div>
               <div className="text-[13px] text-nn-700">{item.project}</div>
-              <div className="flex items-center justify-between mt-2"><span className="text-[12px] text-nn-400">5 evidences in queue</span><span className="text-nn-400 transition-transform duration-200 group-hover:translate-x-0.5">{I.chevron}</span></div>
+              <div className="flex items-center justify-between mt-2"><span className="text-[12px] text-nn-400">{item.evidences} evidences in queue</span><span className="text-nn-400 transition-transform duration-200 group-hover:translate-x-0.5">{I.chevron}</span></div>
             </button>
           );
         })}
