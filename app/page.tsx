@@ -74,8 +74,8 @@ export default function Home() {
   const Sidebar = () => (
     <div className="hidden lg:flex w-[52px] h-screen bg-navy flex-col items-center py-4 gap-0.5 flex-shrink-0">
       <div className="w-7 h-7 rounded-md bg-white/10 flex items-center justify-center mb-6"><span className="text-white text-[10px] font-bold tracking-tight">NV</span></div>
-      <SbIcon icon={I.home(true)} active /><SbIcon icon={I.search} /><SbIcon icon={I.inbox} badge={alertVisible ? 1 : 0} /><SbIcon icon={I.doc} />
-      <div className="flex-1" /><SbIcon icon={I.settings} /><SbIcon icon={I.sparkle} />
+      {SbIcon({ icon: I.home(true), active: true })}{SbIcon({ icon: I.search })}{SbIcon({ icon: I.inbox, badge: alertVisible ? 1 : 0 })}{SbIcon({ icon: I.doc })}
+      <div className="flex-1" />{SbIcon({ icon: I.settings })}{SbIcon({ icon: I.sparkle })}
     </div>
   );
   const SbIcon = ({ icon, active, badge }: { icon: React.ReactNode; active?: boolean; badge?: number }) => (
@@ -115,8 +115,8 @@ export default function Home() {
         <input type="text" placeholder="Type to search" className="w-full px-2.5 py-1.5 text-[12px] border border-nn-200 rounded-lg bg-nn-50 outline-none focus:border-sea-500 transition-colors text-nn-700 placeholder:text-nn-400" />
       </div>
       <div className="flex-1 overflow-y-auto">
-        <PanelItem name="William Smith" project="Ozempic Launch London" time="09:34 AM" selected={selectedPanel === "william"} onClick={startReview} />
-        <PanelItem name="Rosa Claramunt" project="Ozempic Event Madrid" time="09:34 AM" />
+        {PanelItem({ name: "William Smith", project: "Ozempic Launch London", time: "09:34 AM", selected: selectedPanel === "william", onClick: startReview })}
+        {PanelItem({ name: "Rosa Claramunt", project: "Ozempic Event Madrid", time: "09:34 AM" })}
       </div>
     </div>
   );
@@ -313,7 +313,7 @@ export default function Home() {
   /* ═══ EVIDENCE LIST ═══ */
   const EvidenceList = () => (
     <div className="flex-1 h-full overflow-y-auto bg-nn-50" style={{ animation: "fadeIn .2s ease" }}>
-      <MobileHeader title="Evidence Review" onBack={backToDash} />
+      {MobileHeader({ title: "Evidence Review", onBack: backToDash })}
       <div className="px-4 pt-4 lg:pt-6 lg:px-6 pb-6 lg:max-w-[760px] lg:mx-auto">
         <button onClick={backToDash} className="hidden lg:flex items-center gap-1.5 text-[12px] text-nn-500 hover:text-navy mb-4 transition-colors">{I.back} Back to Dashboard</button>
         <div className="flex items-center justify-between mb-4 lg:mb-5">
@@ -349,7 +349,7 @@ export default function Home() {
   /* ═══ TICKET DETAIL ═══ */
   const TicketDetail = () => (
     <div className="flex-1 h-full overflow-y-auto bg-nn-50" style={{ animation: "fadeIn .2s ease" }}>
-      <MobileHeader title="Compliance Alert" onBack={() => setScreen("evidences")} />
+      {MobileHeader({ title: "Compliance Alert", onBack: () => setScreen("evidences") })}
       <div className="px-4 pt-4 lg:pt-6 lg:px-6 pb-8 lg:max-w-[880px] lg:mx-auto">
         <button onClick={() => setScreen("evidences")} className="hidden lg:flex items-center gap-1.5 text-[12px] text-nn-500 hover:text-navy mb-4 transition-colors">{I.back} Back to Evidence List</button>
         <div className="flex flex-col lg:grid lg:grid-cols-[1fr_320px] gap-4 lg:gap-5">
@@ -409,19 +409,19 @@ export default function Home() {
 
   /* ═══ RENDER ═══ */
   const renderContent = () => {
-    if (screen === "loading") return <LoadingScreen />;
-    if (screen === "evidences") return <EvidenceList />;
-    if (screen === "ticket") return <TicketDetail />;
-    if (mobileTab === "inbox" && !inSubFlow) return <MobileInbox />;
-    return <Dashboard />;
+    if (screen === "loading") return LoadingScreen();
+    if (screen === "evidences") return EvidenceList();
+    if (screen === "ticket") return TicketDetail();
+    if (mobileTab === "inbox" && !inSubFlow) return MobileInbox();
+    return Dashboard();
   };
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      {screen === "dashboard" && <LeftPanel />}
+      {Sidebar()}
+      {screen === "dashboard" && LeftPanel()}
       <div className="flex-1 h-screen flex flex-col overflow-hidden">{renderContent()}</div>
-      <BottomNav />
+      {BottomNav()}
     </div>
   );
 }
