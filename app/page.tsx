@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 /* ─── Types ─── */
-type Screen = "dashboard" | "loading" | "evidences" | "ticket";
+type Screen = "dashboard" | "loading" | "evidences" | "ticket" | "agent";
 type MobileTab = "home" | "inbox" | "search" | "settings";
 
 /* ─── SVG Icons ─── */
@@ -18,6 +18,9 @@ const I = {
   back: <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>,
   wine: (s = 16) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><path d="M8 2h8l-1 7a5 5 0 01-3 4.5M10 2l1 7a5 5 0 003 4.5M12 13.5V20m-3 0h6M7 2h10"/></svg>,
   chevron: <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>,
+  scissors: <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}><path strokeLinecap="round" strokeLinejoin="round" d="M14.121 14.121L7.05 21.192m0-14.384l7.071 7.071m2.828-7.071a3 3 0 11-4.243-4.243 3 3 0 014.243 4.243zm0 14.142a3 3 0 11-4.243 4.243 3 3 0 014.243-4.243z"/></svg>,
+  mail: <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>,
+  robot: <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>,
 };
 
 /* ─── Data ─── */
@@ -43,6 +46,7 @@ const evidences = [
 ];
 
 const loadingSteps = ["Connecting to SAP Concur...", "Fetching expense tickets...", "Analyzing images with Azure Vision...", "Running Document Intelligence...", "Applying compliance rules..."];
+const agentSteps = ["Analyzing compliance violation...", "Reviewing expense line items...", "Checking policy database...", "Generating resolution actions..."];
 const statusDotCls: Record<string, string> = { sea: "bg-sea-600", nn: "bg-nn-400", danger: "bg-danger-600", ocean: "bg-ocean-600" };
 
 /* ─── Main ─── */
@@ -54,7 +58,13 @@ export default function Home() {
   const [loadingDone, setLoadingDone] = useState(false);
   const [selectedPanel, setSelectedPanel] = useState<string | null>(null);
   const [hoveredAlert, setHoveredAlert] = useState(false);
-  const [agentTriggered, setAgentTriggered] = useState(false);
+  const [agentStep, setAgentStep] = useState(0);
+  const [agentReady, setAgentReady] = useState(false);
+  const [action1Done, setAction1Done] = useState(false);
+  const [action2Done, setAction2Done] = useState(false);
+  const [action1Loading, setAction1Loading] = useState(false);
+  const [action2Loading, setAction2Loading] = useState(false);
+  const [agentResolved, setAgentResolved] = useState(false);
 
   useEffect(() => {
     if (screen !== "loading") return;
@@ -63,6 +73,15 @@ export default function Home() {
     loadingSteps.forEach((_, i) => t.push(setTimeout(() => setLoadingStep(i + 1), (i + 1) * 800)));
     t.push(setTimeout(() => setLoadingDone(true), loadingSteps.length * 800 + 600));
     t.push(setTimeout(() => setScreen("evidences"), loadingSteps.length * 800 + 1800));
+    return () => t.forEach(clearTimeout);
+  }, [screen]);
+
+  useEffect(() => {
+    if (screen !== "agent") return;
+    setAgentStep(0); setAgentReady(false);
+    const t: NodeJS.Timeout[] = [];
+    agentSteps.forEach((_, i) => t.push(setTimeout(() => setAgentStep(i + 1), (i + 1) * 700)));
+    t.push(setTimeout(() => setAgentReady(true), agentSteps.length * 700 + 500));
     return () => t.forEach(clearTimeout);
   }, [screen]);
 
@@ -393,8 +412,7 @@ export default function Home() {
               </div>
             </div>
             <div className="space-y-2">
-              {!agentTriggered ? <button onClick={() => setAgentTriggered(true)} className="w-full py-3 lg:py-2.5 bg-navy text-white rounded-xl font-medium text-[13px] lg:text-[12px] active:bg-navy/90 hover:bg-navy/90 transition-all shadow-[0_2px_8px_rgba(0,25,101,0.2)] flex items-center justify-center gap-2"><span className="text-sea-300">{I.sparkle}</span> Solve with NovoVision Agent</button>
-                : <div className="w-full py-3 lg:py-2.5 bg-sea-50 border border-sea-200 text-sea-900 rounded-xl font-medium text-[13px] lg:text-[12px] text-center flex items-center justify-center gap-2" style={{ animation: "fadeIn .25s ease" }}><div className="w-3.5 h-3.5 border-[1.5px] border-sea-900 border-t-transparent rounded-full" style={{ animation: "spin .7s linear infinite" }} />NovoVision Agent processing...</div>}
+              <button onClick={() => setScreen("agent")} className="w-full py-3 lg:py-2.5 bg-navy text-white rounded-xl font-medium text-[13px] lg:text-[12px] active:bg-navy/90 hover:bg-navy/90 transition-all shadow-[0_2px_8px_rgba(0,25,101,0.2)] flex items-center justify-center gap-2"><span className="text-sea-300">{I.sparkle}</span> Solve with NovoVision Agent</button>
               <div className="grid grid-cols-2 gap-2">
                 <button className="py-2.5 lg:py-2 border border-nn-200 rounded-xl text-[12px] text-nn-600 active:bg-nn-50 hover:bg-nn-50 transition-colors">Mark as Valid</button>
                 <button className="py-2.5 lg:py-2 border border-danger-200 rounded-xl text-[12px] text-danger-700 active:bg-danger-50 hover:bg-danger-50 transition-colors">Mark Invalid</button>
@@ -407,11 +425,135 @@ export default function Home() {
     </div>
   );
 
+  /* ═══ AGENT RESOLUTION ═══ */
+  const handleAction1 = () => {
+    setAction1Loading(true);
+    setTimeout(() => { setAction1Loading(false); setAction1Done(true); }, 1500);
+  };
+  const handleAction2 = () => {
+    setAction2Loading(true);
+    setTimeout(() => { setAction2Loading(false); setAction2Done(true); }, 1800);
+  };
+  const handleResolve = () => {
+    setAgentResolved(true);
+    setTimeout(() => { setScreen("dashboard"); }, 1200);
+  };
+
+  const AgentScreen = () => (
+    <div className="flex-1 h-full overflow-y-auto bg-nn-50" style={{ animation: "fadeIn .2s ease" }}>
+      {MobileHeader({ title: "NovoVision Agent", onBack: () => setScreen("ticket") })}
+      <div className="px-4 pt-4 lg:pt-6 lg:px-6 pb-8 lg:max-w-[640px] lg:mx-auto">
+        <button onClick={() => setScreen("ticket")} className="hidden lg:flex items-center gap-1.5 text-[12px] text-nn-500 hover:text-navy mb-4 transition-colors">{I.back} Back to Alert</button>
+
+        {/* Agent header */}
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,25,101,0.06)] p-4 lg:p-5 mb-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-navy rounded-xl flex items-center justify-center text-sea-300">{I.sparkle}</div>
+            <div>
+              <h1 className="font-bold text-[15px] lg:text-[16px] text-navy">NovoVision Agent</h1>
+              <p className="text-[11px] text-nn-500">Autonomous compliance resolution</p>
+            </div>
+            {agentReady && !agentResolved && <span className="ml-auto px-2 py-0.5 bg-ocean-50 text-ocean-800 text-[10px] font-medium rounded-full" style={{ animation: "fadeIn .3s ease" }}>Ready</span>}
+            {agentResolved && <span className="ml-auto px-2 py-0.5 bg-ocean-100 text-ocean-800 text-[10px] font-medium rounded-full flex items-center gap-1" style={{ animation: "fadeIn .3s ease" }}>{I.check} Resolved</span>}
+          </div>
+
+          {/* Thinking steps */}
+          <div className="space-y-2 mb-1">
+            {agentSteps.map((step, i) => { const done = agentStep > i, active = agentStep === i; return (
+              <div key={i} className="flex items-center gap-2.5" style={{ animation: `slideUp .25s ease ${i * 0.06}s both` }}>
+                {done ? <div className="w-5 h-5 bg-ocean-100 rounded-full flex items-center justify-center text-ocean-700" style={{ animation: "checkPop .25s ease" }}>{I.check}</div>
+                  : active ? <div className="w-5 h-5 border-[1.5px] border-sea-900 border-t-transparent rounded-full" style={{ animation: "spin .7s linear infinite" }} />
+                  : <div className="w-5 h-5 border-[1.5px] border-nn-200 rounded-full" />}
+                <span className={`text-[12px] ${done ? "text-nn-600" : active ? "text-sea-900 font-medium" : "text-nn-300"}`}>{step}</span>
+              </div>); })}
+          </div>
+          {agentReady && <div className="mt-3 pt-3 border-t border-nn-100 text-[11px] text-nn-500" style={{ animation: "fadeIn .3s ease" }}>Analysis complete — <span className="font-medium text-navy">2 actions proposed</span></div>}
+        </div>
+
+        {/* Action cards */}
+        {agentReady && (
+          <div className="space-y-3" style={{ animation: "slideUp .35s ease" }}>
+            {/* ACTION 1: Remove alcohol from expense */}
+            <div className={`bg-white rounded-2xl shadow-[0_1px_4px_rgba(0,25,101,0.06)] overflow-hidden transition-all ${action1Done ? "ring-1 ring-ocean-300" : ""}`}>
+              <div className={`px-4 py-2.5 flex items-center gap-2 ${action1Done ? "bg-ocean-50" : "bg-nn-50 border-b border-nn-100"}`}>
+                <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${action1Done ? "bg-ocean-100 text-ocean-700" : "bg-danger-50 text-danger-700"}`}>{action1Done ? I.check : I.scissors}</div>
+                <span className="text-[12px] font-semibold text-navy flex-1">Action 1</span>
+                {action1Done && <span className="text-[10px] text-ocean-700 font-medium">Completed</span>}
+              </div>
+              <div className="p-4">
+                <h3 className="font-semibold text-[13px] text-nn-900 mb-1">Remove alcoholic beverages from expense</h3>
+                <p className="text-[11px] text-nn-500 mb-3">Deduct flagged alcohol items from the expense report in SAP Concur and adjust the reimbursable total.</p>
+                <div className={`rounded-xl border p-3 mb-3 font-mono text-[11px] ${action1Done ? "bg-ocean-50/50 border-ocean-200" : "bg-nn-50 border-nn-100"}`}>
+                  <div className={`flex justify-between mb-1 ${action1Done ? "line-through text-nn-400" : "text-danger-700"}`}>
+                    <span>2x Rioja Reserva 2018</span><span>-68.00€</span>
+                  </div>
+                  <div className={`flex justify-between mb-2 ${action1Done ? "line-through text-nn-400" : "text-danger-700"}`}>
+                    <span>1x Copa Albariño</span><span>-12.00€</span>
+                  </div>
+                  <div className="border-t border-dashed border-nn-300 pt-2 flex justify-between font-bold">
+                    <span className="text-nn-700">New total</span>
+                    <div className="text-right">
+                      {action1Done
+                        ? <span className="text-ocean-800">236.80€</span>
+                        : <><span className="text-nn-400 line-through text-[10px] mr-1.5">316.80€</span><span className="text-navy">236.80€</span></>}
+                    </div>
+                  </div>
+                </div>
+                {!action1Done && !action1Loading && <button onClick={handleAction1} className="w-full py-2.5 bg-navy text-white rounded-xl font-medium text-[12px] active:bg-navy/90 hover:bg-navy/90 transition-colors flex items-center justify-center gap-2">{I.scissors} Approve & Execute</button>}
+                {action1Loading && <div className="w-full py-2.5 bg-sea-50 border border-sea-200 text-sea-900 rounded-xl font-medium text-[12px] flex items-center justify-center gap-2"><div className="w-3.5 h-3.5 border-[1.5px] border-sea-900 border-t-transparent rounded-full" style={{ animation: "spin .7s linear infinite" }} />Updating SAP Concur...</div>}
+                {action1Done && <div className="flex items-center gap-2 text-[11px] text-ocean-700 font-medium" style={{ animation: "fadeIn .3s ease" }}><div className="w-4 h-4 bg-ocean-100 rounded-full flex items-center justify-center text-ocean-700" style={{ animation: "checkPop .3s ease" }}>{I.check}</div>Expense updated in SAP Concur — 80.00€ deducted</div>}
+              </div>
+            </div>
+
+            {/* ACTION 2: Send policy reminder */}
+            <div className={`bg-white rounded-2xl shadow-[0_1px_4px_rgba(0,25,101,0.06)] overflow-hidden transition-all ${action2Done ? "ring-1 ring-ocean-300" : ""}`}>
+              <div className={`px-4 py-2.5 flex items-center gap-2 ${action2Done ? "bg-ocean-50" : "bg-nn-50 border-b border-nn-100"}`}>
+                <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${action2Done ? "bg-ocean-100 text-ocean-700" : "bg-sea-50 text-sea-900"}`}>{action2Done ? I.check : I.mail}</div>
+                <span className="text-[12px] font-semibold text-navy flex-1">Action 2</span>
+                {action2Done && <span className="text-[10px] text-ocean-700 font-medium">Completed</span>}
+              </div>
+              <div className="p-4">
+                <h3 className="font-semibold text-[13px] text-nn-900 mb-1">Send policy reminder to employee</h3>
+                <p className="text-[11px] text-nn-500 mb-3">Notify the responsible employee about the company&apos;s alcohol policy for healthcare professional events.</p>
+                <div className={`rounded-xl border p-3 mb-3 text-[11px] ${action2Done ? "bg-ocean-50/50 border-ocean-200" : "bg-nn-50 border-nn-100"}`}>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between"><span className="text-nn-500">To</span><span className="font-medium text-nn-800">William Smith</span></div>
+                    <div className="flex justify-between"><span className="text-nn-500">Subject</span><span className="font-medium text-nn-800">Expense policy reminder</span></div>
+                    <div className="pt-1.5 mt-1.5 border-t border-dashed border-nn-300">
+                      <span className="text-nn-500">Content preview</span>
+                      <p className="text-nn-700 mt-1 leading-relaxed">&quot;Dear William, this is a reminder that alcoholic beverages are not eligible for reimbursement in events involving Healthcare Professionals, as per <span className="font-medium text-navy">Farmaindustria Code — Art. 17.3</span>. Please ensure future expense reports comply with this policy.&quot;</p>
+                    </div>
+                  </div>
+                </div>
+                {!action2Done && !action2Loading && <button onClick={handleAction2} className="w-full py-2.5 bg-navy text-white rounded-xl font-medium text-[12px] active:bg-navy/90 hover:bg-navy/90 transition-colors flex items-center justify-center gap-2">{I.mail} Approve & Send</button>}
+                {action2Loading && <div className="w-full py-2.5 bg-sea-50 border border-sea-200 text-sea-900 rounded-xl font-medium text-[12px] flex items-center justify-center gap-2"><div className="w-3.5 h-3.5 border-[1.5px] border-sea-900 border-t-transparent rounded-full" style={{ animation: "spin .7s linear infinite" }} />Sending notification...</div>}
+                {action2Done && <div className="flex items-center gap-2 text-[11px] text-ocean-700 font-medium" style={{ animation: "fadeIn .3s ease" }}><div className="w-4 h-4 bg-ocean-100 rounded-full flex items-center justify-center text-ocean-700" style={{ animation: "checkPop .3s ease" }}>{I.check}</div>Policy reminder sent to William Smith</div>}
+              </div>
+            </div>
+
+            {/* Resolve button */}
+            {action1Done && action2Done && !agentResolved && (
+              <button onClick={handleResolve} className="w-full py-3 bg-ocean-800 text-white rounded-xl font-medium text-[13px] active:bg-ocean-900 hover:bg-ocean-900 transition-colors flex items-center justify-center gap-2 shadow-[0_2px_8px_rgba(17,112,119,0.25)]" style={{ animation: "slideUp .3s ease" }}>{I.check} Mark Alert as Resolved</button>
+            )}
+            {agentResolved && (
+              <div className="bg-ocean-50 border border-ocean-200 rounded-2xl p-4 text-center" style={{ animation: "fadeIn .3s ease" }}>
+                <div className="w-10 h-10 bg-ocean-100 rounded-full flex items-center justify-center text-ocean-700 mx-auto mb-2" style={{ animation: "checkPop .4s ease" }}><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+                <p className="font-semibold text-[14px] text-ocean-900 mb-0.5">Alert Resolved</p>
+                <p className="text-[11px] text-ocean-700">Returning to dashboard...</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   /* ═══ RENDER ═══ */
   const renderContent = () => {
     if (screen === "loading") return LoadingScreen();
     if (screen === "evidences") return EvidenceList();
     if (screen === "ticket") return TicketDetail();
+    if (screen === "agent") return AgentScreen();
     if (mobileTab === "inbox" && !inSubFlow) return MobileInbox();
     return Dashboard();
   };
