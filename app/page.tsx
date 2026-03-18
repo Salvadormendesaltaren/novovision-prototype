@@ -27,7 +27,9 @@ const CountUp = ({ to, suffix = "" }: { to: number; suffix?: string }) => {
 
 /* ─── SVG Icons ─── */
 const I = {
-  home: (a?: boolean) => <svg width="22" height="22" fill={a ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={a ? 0 : 1.6}><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>,
+  home: (a?: boolean) => a
+    ? <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M11.47 3.841a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.061l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.689z"/><path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15.75a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-4.5a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625A1.875 1.875 0 013.75 19.875v-6.198a2.29 2.29 0 00.091-.086L12 5.432z"/></svg>
+    : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>,
   search: <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>,
   inbox: <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}><path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-2.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>,
   doc: <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>,
@@ -46,16 +48,16 @@ const I = {
 
 /* ─── Data ─── */
 const tableRows = [
-  { id: "TASK-8782", type: "Photo", project: "Ozempic E...", title: "People standing around a table", status: "In Progress", sColor: "sea", priority: "Medium", arrow: "→" },
-  { id: "TASK-7878", type: "Photo", project: "Ozempic E...", title: "People standing around a table", status: "Backlog", sColor: "nn", priority: "Medium", arrow: "→" },
-  { id: "TASK-7839", type: "Ticket", project: "Ozempic E...", title: "Dinner ticket", status: "Todo", sColor: "nn", priority: "High", arrow: "↑" },
-  { id: "TASK-5562", type: "Photo", project: "Ozempic L...", title: "Speaker during conference", status: "Backlog", sColor: "nn", priority: "Medium", arrow: "→" },
-  { id: "TASK-8686", type: "Ticket", project: "Ozempic L...", title: "Breakfast ticket", status: "Cancelled", sColor: "danger", priority: "Medium", arrow: "→" },
-  { id: "TASK-1280", type: "Ticket", project: "Ozempic E...", title: "Hotel bill", status: "Done", sColor: "ocean", priority: "High", arrow: "↑" },
-  { id: "TASK-7262", type: "Photo", project: "Ozempic E...", title: "People having lunch", status: "Done", sColor: "ocean", priority: "High", arrow: "↑" },
-  { id: "TASK-1138", type: "Photo", project: "Ozempic E...", title: "Coffee break during an event", status: "In Progress", sColor: "sea", priority: "Medium", arrow: "→" },
-  { id: "TASK-7184", type: "Photo", project: "Ozempic L...", title: "Round table in an event", status: "Todo", sColor: "nn", priority: "Low", arrow: "↓" },
-  { id: "TASK-5160", type: "Photo", project: "Ozempic E...", title: "Coffee break in an event", status: "In Progress", sColor: "sea", priority: "High", arrow: "↑" },
+  { id: "8782", type: "Photo", project: "Ozempic E...", title: "People standing around a table", status: "In Progress", sColor: "sea", priority: "Medium", arrow: "→" },
+  { id: "7878", type: "Photo", project: "Ozempic E...", title: "People standing around a table", status: "Backlog", sColor: "nn", priority: "Medium", arrow: "→" },
+  { id: "7839", type: "Ticket", project: "Ozempic E...", title: "Dinner ticket", status: "Todo", sColor: "nn", priority: "High", arrow: "↑" },
+  { id: "5562", type: "Photo", project: "Ozempic L...", title: "Speaker during conference", status: "Backlog", sColor: "nn", priority: "Medium", arrow: "→" },
+  { id: "8686", type: "Ticket", project: "Ozempic L...", title: "Breakfast ticket", status: "Cancelled", sColor: "danger", priority: "Medium", arrow: "→" },
+  { id: "1280", type: "Ticket", project: "Ozempic E...", title: "Hotel bill", status: "Done", sColor: "ocean", priority: "High", arrow: "↑" },
+  { id: "7262", type: "Photo", project: "Ozempic E...", title: "People having lunch", status: "Done", sColor: "ocean", priority: "High", arrow: "↑" },
+  { id: "1138", type: "Photo", project: "Ozempic E...", title: "Coffee break during an event", status: "In Progress", sColor: "sea", priority: "Medium", arrow: "→" },
+  { id: "7184", type: "Photo", project: "Ozempic L...", title: "Round table in an event", status: "Todo", sColor: "nn", priority: "Low", arrow: "↓" },
+  { id: "5160", type: "Photo", project: "Ozempic E...", title: "Coffee break in an event", status: "In Progress", sColor: "sea", priority: "High", arrow: "↑" },
 ];
 
 const evidences = [
@@ -96,6 +98,28 @@ export default function Home() {
   const [action1Loading, setAction1Loading] = useState(false);
   const [action2Loading, setAction2Loading] = useState(false);
   const [agentResolved, setAgentResolved] = useState(false);
+  const [selectedTone, setSelectedTone] = useState<"formal" | "friendly">("formal");
+  const [reviewedItems, setReviewedItems] = useState<Set<string>>(new Set());
+  const [showAll, setShowAll] = useState(false);
+
+  const inboxItems = [
+    { key: "william", name: "William Smith", project: "Ozempic Launch London", time: "09:34 AM" },
+    { key: "rosa", name: "Rosa Claramunt", project: "Ozempic Event Madrid", time: "09:34 AM" },
+  ];
+  const unreviewed = inboxItems.filter((it) => !reviewedItems.has(it.key));
+  const displayedItems = showAll ? inboxItems : unreviewed;
+  const badgeCount = unreviewed.length;
+
+  const toneMessages = {
+    formal: {
+      subject: "Expense policy reminder",
+      body: `"Dear William, this is a reminder that alcoholic beverages are not eligible for reimbursement in events involving Healthcare Professionals, as per Farmaindustria Code — Art. 17.3. Please ensure future expense reports comply with this policy."`,
+    },
+    friendly: {
+      subject: "Quick note about your recent expense",
+      body: `"Hi William! Just a heads-up — we noticed some alcoholic beverages on your latest expense report. Unfortunately, those can't be reimbursed for HCP events per Farmaindustria Code — Art. 17.3. No worries, just keep it in mind for next time!"`,
+    },
+  };
 
   useEffect(() => {
     if (screen !== "loading") return;
@@ -116,15 +140,15 @@ export default function Home() {
     return () => t.forEach(clearTimeout);
   }, [screen]);
 
-  const startReview = useCallback(() => { setScreen("loading"); setSelectedPanel("william"); setMobileTab("home"); }, []);
-  const backToDash = useCallback(() => { setScreen("dashboard"); setAlertVisible(true); }, []);
+  const startReview = useCallback((panelKey: string = "william") => { setScreen("loading"); setSelectedPanel(panelKey); setMobileTab("home"); }, []);
+  const backToDash = useCallback(() => { setScreen("dashboard"); setAlertVisible(true); if (selectedPanel) setReviewedItems((prev) => new Set(prev).add(selectedPanel)); }, [selectedPanel]);
   const inSubFlow = screen !== "dashboard";
 
   /* ═══ DESKTOP SIDEBAR ═══ */
   const Sidebar = () => (
     <div className="hidden lg:flex w-[52px] h-screen bg-navy flex-col items-center py-4 gap-0.5 flex-shrink-0">
-      <div className={`mb-6 ${cx.btnIcon} hover:rotate-3 cursor-pointer`}>{I.novo(28)}</div>
-      {SbIcon({ icon: I.home(true), active: true })}{SbIcon({ icon: I.search })}{SbIcon({ icon: I.inbox, badge: alertVisible ? 1 : 0 })}{SbIcon({ icon: I.doc })}
+      <div className={`mb-6 ${cx.btnIcon} hover:rotate-3 cursor-pointer`} onClick={() => { setScreen("dashboard"); setMobileTab("home"); }}>{I.novo(28)}</div>
+      {SbIcon({ icon: I.home(true), active: true })}{SbIcon({ icon: I.search })}{SbIcon({ icon: I.inbox, badge: badgeCount })}{SbIcon({ icon: I.doc })}
       <div className="flex-1" />{SbIcon({ icon: I.settings })}{SbIcon({ icon: I.sparkle })}
     </div>
   );
@@ -140,7 +164,7 @@ export default function Home() {
       <div className="flex items-center justify-around px-2 pb-[env(safe-area-inset-bottom)] h-14">
         {([
           { key: "home" as MobileTab, icon: I.home(mobileTab === "home"), label: "Home" },
-          { key: "inbox" as MobileTab, icon: I.inbox, label: "Inbox", badge: alertVisible ? 1 : 0 },
+          { key: "inbox" as MobileTab, icon: I.inbox, label: "Inbox", badge: badgeCount },
           { key: "search" as MobileTab, icon: I.search, label: "Search" },
           { key: "settings" as MobileTab, icon: I.settings, label: "Settings" },
         ]).map((tab) => (
@@ -161,19 +185,37 @@ export default function Home() {
       <div className="px-4 pt-4 pb-3">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold text-[13px] text-nn-900">New Evidences</h2>
-          <div className="flex items-center gap-1.5"><span className="text-[11px] text-nn-500">Unreviewed</span><div className="w-8 h-[18px] bg-sea-900 rounded-full relative cursor-pointer transition-all duration-300 hover:shadow-[0_0_0_3px_rgba(0,90,210,0.15)]"><div className="w-3 h-3 bg-white rounded-full absolute right-[3px] top-[3px] transition-all duration-300 shadow-sm" /></div></div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] text-nn-500">{showAll ? "All" : "Unreviewed"}</span>
+            <div className={`w-8 h-[18px] rounded-full relative cursor-pointer transition-all duration-300 hover:shadow-[0_0_0_3px_rgba(0,90,210,0.15)] ${showAll ? "bg-nn-400" : "bg-sea-900"}`} onClick={() => setShowAll((p) => !p)}>
+              <div className={`w-3 h-3 bg-white rounded-full absolute top-[3px] transition-all duration-300 shadow-sm ${showAll ? "left-[3px]" : "right-[3px]"}`} />
+            </div>
+          </div>
         </div>
         <input type="text" placeholder="Type to search" className={`w-full px-2.5 py-1.5 text-[12px] border border-nn-200 rounded-lg bg-nn-50 outline-none focus:border-sea-500 text-nn-700 placeholder:text-nn-400 ${cx.input}`} />
       </div>
       <div className="flex-1 overflow-y-auto">
-        {PanelItem({ name: "William Smith", project: "Ozempic Launch London", time: "09:34 AM", selected: selectedPanel === "william", onClick: startReview })}
-        {PanelItem({ name: "Rosa Claramunt", project: "Ozempic Event Madrid", time: "09:34 AM" })}
+        {displayedItems.map((item) => {
+          const isReviewed = reviewedItems.has(item.key);
+          return PanelItem({
+            key: item.key,
+            name: item.name,
+            project: item.project,
+            time: item.time,
+            selected: selectedPanel === item.key,
+            reviewed: isReviewed,
+            onClick: isReviewed ? undefined : () => startReview(item.key),
+          });
+        })}
+        {displayedItems.length === 0 && (
+          <div className="px-4 py-8 text-center text-[12px] text-nn-400">No unreviewed evidences</div>
+        )}
       </div>
     </div>
   );
-  const PanelItem = ({ name, project, time, selected, onClick }: { name: string; project: string; time: string; selected?: boolean; onClick?: () => void }) => (
-    <button onClick={onClick} className={`w-full text-left px-4 py-3 border-b border-nn-100 transition-all duration-200 group ${selected ? "bg-sea-50 border-l-[3px] border-l-sea-900" : "hover:bg-nn-50 active:bg-nn-100 border-l-[3px] border-l-transparent hover:border-l-nn-200"}`}>
-      <div className="flex items-center justify-between mb-0.5"><span className={`text-[13px] font-medium text-nn-900 transition-colors duration-200 ${!selected ? "group-hover:text-sea-900" : ""}`}>{name}</span><span className="text-[11px] text-nn-400">{time}</span></div>
+  const PanelItem = ({ name, project, time, selected, reviewed, onClick }: { key?: string; name: string; project: string; time: string; selected?: boolean; reviewed?: boolean; onClick?: () => void }) => (
+    <button onClick={onClick} disabled={reviewed} className={`w-full text-left px-4 py-3 border-b border-nn-100 transition-all duration-200 group ${reviewed ? "opacity-50 cursor-default" : ""} ${selected ? "bg-sea-50 border-l-[3px] border-l-sea-900" : "hover:bg-nn-50 active:bg-nn-100 border-l-[3px] border-l-transparent hover:border-l-nn-200"}`}>
+      <div className="flex items-center justify-between mb-0.5"><span className={`text-[13px] font-medium transition-colors duration-200 ${reviewed ? "line-through text-nn-500" : "text-nn-900"} ${!selected && !reviewed ? "group-hover:text-sea-900" : ""}`}>{name}</span>{reviewed ? <span className="text-[10px] text-ocean-700 bg-ocean-50 px-1.5 py-0.5 rounded-full font-medium">Reviewed</span> : <span className="text-[11px] text-nn-400">{time}</span>}</div>
       <div className="text-[12px] text-nn-700">{project}</div><div className="text-[11px] text-nn-400 mt-0.5">5 evidences in queue</div>
     </button>
   );
@@ -191,17 +233,31 @@ export default function Home() {
     <div className="flex-1 h-full overflow-y-auto bg-nn-50 pb-20" style={{ animation: "fadeIn .2s ease" }}>
       <div className="bg-white px-4 pt-5 pb-3 border-b border-nn-100">
         <h1 className="text-[20px] font-bold text-navy mb-1" style={{ animation: "slideUp .3s ease" }}>New Evidences</h1>
-        <div className="flex items-center gap-2 mb-3"><span className="text-[12px] text-nn-500">Unreviewed</span><div className="w-8 h-[18px] bg-sea-900 rounded-full relative transition-all duration-300 active:scale-95"><div className="w-3 h-3 bg-white rounded-full absolute right-[3px] top-[3px] transition-all duration-300 shadow-sm" /></div></div>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-[12px] text-nn-500">{showAll ? "All" : "Unreviewed"}</span>
+          <div className={`w-8 h-[18px] rounded-full relative transition-all duration-300 active:scale-95 ${showAll ? "bg-nn-400" : "bg-sea-900"}`} onClick={() => setShowAll((p) => !p)}>
+            <div className={`w-3 h-3 bg-white rounded-full absolute top-[3px] transition-all duration-300 shadow-sm ${showAll ? "left-[3px]" : "right-[3px]"}`} />
+          </div>
+        </div>
         <input type="text" placeholder="Search evidences..." className={`w-full px-3 py-2.5 text-[14px] border border-nn-200 rounded-xl bg-nn-50 outline-none focus:border-sea-500 text-nn-700 placeholder:text-nn-400 ${cx.input}`} />
       </div>
       <div className="p-4 space-y-2">
-        {[{ name: "William Smith", project: "Ozempic Launch London", time: "09:34 AM", action: startReview }, { name: "Rosa Claramunt", project: "Ozempic Event Madrid", time: "09:34 AM" }].map((item, i) => (
-          <button key={item.name} onClick={item.action} className={`w-full text-left bg-white rounded-xl p-4 shadow-[0_1px_3px_rgba(0,25,101,0.04)] ${cx.cardTap} ${cx.card}`} style={{ animation: `slideUp .3s ease ${i * 0.08}s both` }}>
-            <div className="flex items-center justify-between mb-1"><span className="text-[14px] font-semibold text-nn-900">{item.name}</span><span className="text-[12px] text-nn-400">{item.time}</span></div>
-            <div className="text-[13px] text-nn-700">{item.project}</div>
-            <div className="flex items-center justify-between mt-2"><span className="text-[12px] text-nn-400">5 evidences in queue</span><span className="text-nn-400 transition-transform duration-200 group-hover:translate-x-0.5">{I.chevron}</span></div>
-          </button>
-        ))}
+        {displayedItems.map((item, i) => {
+          const isReviewed = reviewedItems.has(item.key);
+          return (
+            <button key={item.key} onClick={isReviewed ? undefined : () => startReview(item.key)} disabled={isReviewed} className={`w-full text-left bg-white rounded-xl p-4 shadow-[0_1px_3px_rgba(0,25,101,0.04)] ${cx.cardTap} ${cx.card} ${isReviewed ? "opacity-50" : ""}`} style={{ animation: `slideUp .3s ease ${i * 0.08}s both` }}>
+              <div className="flex items-center justify-between mb-1">
+                <span className={`text-[14px] font-semibold ${isReviewed ? "line-through text-nn-500" : "text-nn-900"}`}>{item.name}</span>
+                {isReviewed ? <span className="text-[10px] text-ocean-700 bg-ocean-50 px-1.5 py-0.5 rounded-full font-medium">Reviewed</span> : <span className="text-[12px] text-nn-400">{item.time}</span>}
+              </div>
+              <div className="text-[13px] text-nn-700">{item.project}</div>
+              <div className="flex items-center justify-between mt-2"><span className="text-[12px] text-nn-400">5 evidences in queue</span><span className="text-nn-400 transition-transform duration-200 group-hover:translate-x-0.5">{I.chevron}</span></div>
+            </button>
+          );
+        })}
+        {displayedItems.length === 0 && (
+          <div className="py-8 text-center text-[13px] text-nn-400">No unreviewed evidences</div>
+        )}
       </div>
     </div>
   );
@@ -212,7 +268,7 @@ export default function Home() {
       <div className="lg:max-w-[1080px]">
         {/* Mobile top bar */}
         <div className="flex items-center justify-between lg:hidden mb-4" style={{ animation: "slideDown .3s ease" }}>
-          <div className={`${cx.btnIcon} hover:rotate-3`}>{I.novo(32)}</div>
+          <div className={`${cx.btnIcon} hover:rotate-3 cursor-pointer`} onClick={() => { setScreen("dashboard"); setMobileTab("home"); }}>{I.novo(32)}</div>
           <h1 className="text-[18px] font-bold text-navy">NovoVision</h1>
           <div className={`w-8 h-8 rounded-full bg-sea-100 flex items-center justify-center text-sea-900 text-[11px] font-bold ${cx.btnIcon}`}>WS</div>
         </div>
@@ -226,7 +282,7 @@ export default function Home() {
             <div className="flex items-center justify-between mb-1"><span className="text-[11px] lg:text-[12px] text-nn-500 font-medium">New evidences</span><span className="text-danger-700 text-[10px] lg:text-[11px] font-medium">↘ -20%</span></div>
             <div className="text-[24px] lg:text-[28px] font-bold text-navy leading-tight mb-0.5"><CountUp to={alertVisible ? 11 : 10} /></div>
             <p className="text-[10px] lg:text-[11px] text-nn-500 mb-2 lg:mb-3">Acquisition needs attention</p>
-            <button onClick={startReview} className={`px-3 lg:px-3.5 py-1.5 bg-sea-900 text-white text-[11px] font-medium rounded-full hover:bg-sea-800 flex items-center gap-1.5 hover:shadow-[0_2px_8px_rgba(0,90,210,0.25)] ${cx.btn}`}><span className="w-1 h-1 bg-white/60 rounded-full" /> Review now</button>
+            <button onClick={() => startReview()} className={`px-3 lg:px-3.5 py-1.5 bg-sea-900 text-white text-[11px] font-medium rounded-full hover:bg-sea-800 flex items-center gap-1.5 hover:shadow-[0_2px_8px_rgba(0,90,210,0.25)] ${cx.btn}`}><span className="w-1 h-1 bg-white/60 rounded-full" /> Review now</button>
           </div>
           <div className={`bg-white rounded-xl p-3.5 lg:p-4 shadow-[0_1px_3px_rgba(0,25,101,0.04)] ${cx.card}`} style={{ animation: "slideUp .3s ease .06s both" }}>
             <div className="flex items-center justify-between mb-1"><span className="text-[11px] lg:text-[12px] text-nn-500 font-medium">Active projects</span><span className="text-ocean-700 text-[10px] lg:text-[11px] font-medium">↗ +12.5%</span></div>
@@ -278,7 +334,7 @@ export default function Home() {
           {alertVisible && (
             <button onClick={() => setScreen("ticket")} className={`w-full text-left bg-danger-50 rounded-xl p-3.5 ring-1 ring-danger-200 ${cx.cardTap}`} style={{ animation: "slideUp .35s ease, subtlePulse 2.5s ease .5s infinite" }}>
               <div className="flex items-center justify-between mb-1.5">
-                <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-danger-600" style={{ animation: "pulse 1.5s ease infinite" }} /><span className="font-mono text-[11px] text-danger-800">TASK-9201</span></div>
+                <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-danger-600" style={{ animation: "pulse 1.5s ease infinite" }} /><span className="font-mono text-[11px] text-danger-800">9201</span></div>
                 <span className="px-1.5 py-0.5 bg-danger-700 text-white text-[9px] font-bold rounded flex items-center gap-0.5" style={{ animation: "bounceIn .4s ease .2s both" }}>{I.alert} ALCOHOL</span>
               </div>
               <p className="text-[13px] font-medium text-danger-800 mb-1">Wine & spirits detected</p>
@@ -306,11 +362,11 @@ export default function Home() {
 
         {/* DESKTOP: table */}
         <div className="hidden lg:block bg-white rounded-xl shadow-[0_1px_3px_rgba(0,25,101,0.04)] overflow-hidden" style={{ animation: "slideUp .3s ease .1s both" }}>
-          <div className="grid grid-cols-[36px_110px_1fr_110px_90px_32px] px-4 py-2 border-b border-nn-100 text-[11px] text-nn-500 font-medium uppercase tracking-wider"><div /><div>Task</div><div>Title</div><div>Status</div><div>Priority</div><div /></div>
+          <div className="grid grid-cols-[36px_110px_1fr_110px_90px_32px] px-4 py-2 border-b border-nn-100 text-[11px] text-nn-500 font-medium uppercase tracking-wider"><div /><div>ID</div><div>Title</div><div>Status</div><div>Priority</div><div /></div>
           {alertVisible && (
             <div className="grid grid-cols-[36px_110px_1fr_110px_90px_32px] px-4 py-2.5 border-b border-danger-200 bg-danger-50 items-center text-[13px] relative group cursor-pointer transition-all duration-200 hover:bg-danger-100/70" onMouseEnter={() => setHoveredAlert(true)} onMouseLeave={() => setHoveredAlert(false)} style={{ animation: "slideUp .35s ease" }}>
               <div><input type="checkbox" className="rounded border-nn-300 accent-sea-900 transition-transform duration-150 hover:scale-110" /></div>
-              <div className="font-mono text-[11px] text-danger-800">TASK-9201</div>
+              <div className="font-mono text-[11px] text-danger-800">9201</div>
               <div className="flex items-center gap-1.5"><span className="px-1.5 py-0.5 bg-danger-100 text-danger-800 text-[10px] font-medium rounded">Ticket</span><span className="px-1.5 py-0.5 bg-danger-100 text-danger-800 text-[10px] font-medium rounded">Ozempic L...</span><span className="text-danger-800 font-medium text-[12px]">Wine & spirits detected</span><span className="ml-0.5 px-1.5 py-0.5 bg-danger-700 text-white text-[9px] font-bold rounded flex items-center gap-0.5" style={{ animation: "bounceIn .4s ease .2s both" }}>{I.alert} ALCOHOL</span></div>
               <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-danger-600" style={{ animation: "pulse 1.5s ease infinite" }} /><span className="text-danger-700 text-[11px] font-medium">Alert</span></div>
               <div className="text-danger-700 text-[11px] font-medium">↑ Critical</div>
@@ -468,7 +524,8 @@ export default function Home() {
   };
   const handleResolve = () => {
     setAgentResolved(true);
-    setTimeout(() => { setScreen("dashboard"); }, 1200);
+    if (selectedPanel) setReviewedItems((prev) => new Set(prev).add(selectedPanel));
+    setTimeout(() => { setScreen("dashboard"); setAlertVisible(true); }, 1200);
   };
 
   const AgentScreen = () => (
@@ -547,13 +604,25 @@ export default function Home() {
               <div className="p-4">
                 <h3 className="font-semibold text-[13px] text-nn-900 mb-1">Send policy reminder to employee</h3>
                 <p className="text-[11px] text-nn-500 mb-3">Notify the responsible employee about the company&apos;s alcohol policy for healthcare professional events.</p>
-                <div className={`rounded-xl border p-3 mb-3 text-[11px] transition-all duration-500 ${action2Done ? "bg-ocean-50/50 border-ocean-200" : "bg-nn-50 border-nn-100"}`}>
+                {/* Tone selector */}
+                {!action2Done && (
+                  <div className="flex items-center gap-2 mb-3" style={{ animation: "fadeIn .3s ease" }}>
+                    <span className="text-[11px] text-nn-500">Tone:</span>
+                    <div className="flex bg-nn-100 rounded-full p-0.5">
+                      <button onClick={() => setSelectedTone("formal")} className={`px-3 py-1 text-[11px] font-medium rounded-full transition-all duration-200 ${selectedTone === "formal" ? "bg-white text-navy shadow-sm" : "text-nn-500 hover:text-nn-700"}`}>Formal</button>
+                      <button onClick={() => setSelectedTone("friendly")} className={`px-3 py-1 text-[11px] font-medium rounded-full transition-all duration-200 ${selectedTone === "friendly" ? "bg-white text-navy shadow-sm" : "text-nn-500 hover:text-nn-700"}`}>Friendly</button>
+                    </div>
+                  </div>
+                )}
+                <div key={selectedTone} className={`rounded-xl border p-3 mb-3 text-[11px] transition-all duration-500 ${action2Done ? "bg-ocean-50/50 border-ocean-200" : "bg-nn-50 border-nn-100"}`} style={{ animation: "fadeIn .25s ease" }}>
                   <div className="space-y-1.5">
                     <div className="flex justify-between"><span className="text-nn-500">To</span><span className="font-medium text-nn-800">William Smith</span></div>
-                    <div className="flex justify-between"><span className="text-nn-500">Subject</span><span className="font-medium text-nn-800">Expense policy reminder</span></div>
+                    <div className="flex justify-between"><span className="text-nn-500">Subject</span><span className="font-medium text-nn-800">{toneMessages[selectedTone].subject}</span></div>
                     <div className="pt-1.5 mt-1.5 border-t border-dashed border-nn-300">
                       <span className="text-nn-500">Content preview</span>
-                      <p className="text-nn-700 mt-1 leading-relaxed">&quot;Dear William, this is a reminder that alcoholic beverages are not eligible for reimbursement in events involving Healthcare Professionals, as per <span className="font-medium text-navy">Farmaindustria Code — Art. 17.3</span>. Please ensure future expense reports comply with this policy.&quot;</p>
+                      <p className="text-nn-700 mt-1 leading-relaxed">{toneMessages[selectedTone].body.split("Farmaindustria Code — Art. 17.3").length > 1
+                        ? <>{toneMessages[selectedTone].body.split("Farmaindustria Code — Art. 17.3")[0]}<span className="font-medium text-navy">Farmaindustria Code — Art. 17.3</span>{toneMessages[selectedTone].body.split("Farmaindustria Code — Art. 17.3")[1]}</>
+                        : toneMessages[selectedTone].body}</p>
                     </div>
                   </div>
                 </div>
