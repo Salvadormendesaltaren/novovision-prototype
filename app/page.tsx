@@ -2,8 +2,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
 /* ─── Types ─── */
-type Screen = "dashboard" | "loading" | "evidences" | "ticket" | "agent";
+type Screen = "dashboard" | "loading" | "evidences" | "ticket" | "agent" | "evidenceDetail" | "inboxFull" | "searchScreen" | "projectDetail";
 type MobileTab = "home" | "inbox" | "search" | "settings";
+type DashTab = "evidences" | "projects";
 
 /* ─── CountUp ─── */
 const CountUp = ({ to, suffix = "" }: { to: number; suffix?: string }) => {
@@ -60,12 +61,25 @@ const tableRows = [
   { id: "5160", type: "Photo", project: "Ozempic E...", title: "Coffee break in an event", status: "In Progress", sColor: "sea", priority: "High", arrow: "↑" },
 ];
 
-const evidences = [
+const williamEvidences = [
   { id: 1, type: "Photo", title: "Group photo at restaurant entrance", status: "ok", confidence: 94 },
   { id: 2, type: "Ticket", title: "Dinner receipt — Restaurant El Celler", status: "ok", confidence: 97 },
   { id: 3, type: "Ticket", title: "Dinner receipt — Wine & spirits detected", status: "alert", confidence: 99, alertType: "Alcohol detected" },
   { id: 4, type: "Photo", title: "Speaker presentation setup", status: "ok", confidence: 91 },
   { id: 5, type: "Photo", title: "Attendees at round table discussion", status: "ok", confidence: 88 },
+];
+
+const rosaEvidences = [
+  { id: 1, type: "Ticket", title: "Conference registration receipt", status: "ok", confidence: 96 },
+  { id: 2, type: "Photo", title: "Panel discussion with speakers", status: "ok", confidence: 93 },
+  { id: 3, type: "Ticket", title: "Catering service invoice", status: "ok", confidence: 98 },
+];
+
+const projects = [
+  { id: "P001", name: "Ozempic Launch London", type: "Congress", date: "Mar 14-16, 2025", evidences: 12, alerts: 1, status: "Active" },
+  { id: "P002", name: "Ozempic Event Madrid", type: "Event", date: "Mar 20-21, 2025", evidences: 8, alerts: 0, status: "Active" },
+  { id: "P003", name: "Wegovy Summit Berlin", type: "Congress", date: "Apr 5-7, 2025", evidences: 15, alerts: 0, status: "Upcoming" },
+  { id: "P004", name: "Rybelsus Launch Paris", type: "Event", date: "Apr 12-13, 2025", evidences: 6, alerts: 0, status: "Upcoming" },
 ];
 
 const loadingSteps = ["Connecting to SAP Concur...", "Fetching expense tickets...", "Analyzing images with Azure Vision...", "Running Document Intelligence...", "Applying compliance rules..."];
@@ -101,6 +115,9 @@ export default function Home() {
   const [selectedTone, setSelectedTone] = useState<"formal" | "friendly">("formal");
   const [reviewedItems, setReviewedItems] = useState<Set<string>>(new Set());
   const [showAll, setShowAll] = useState(false);
+  const [selectedEvidence, setSelectedEvidence] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<DashTab>("evidences");
+  const [sortBy, setSortBy] = useState<"status" | "priority" | null>(null);
 
   const inboxItems = [
     { key: "william", name: "William Smith", project: "Ozempic Launch London", time: "09:34 AM", evidences: 5 },
@@ -151,17 +168,20 @@ export default function Home() {
   const startReview = useCallback((panelKey: string = "william") => { setScreen("loading"); setSelectedPanel(panelKey); setMobileTab("home"); }, []);
   const backToDash = useCallback(() => { setScreen("dashboard"); setAlertVisible(true); if (selectedPanel) setReviewedItems((prev) => new Set(prev).add(selectedPanel)); }, [selectedPanel]);
   const inSubFlow = screen !== "dashboard";
+  const currentEvidences = selectedPanel === "rosa" ? rosaEvidences : williamEvidences;
+  const currentAlertCount = currentEvidences.filter(e => e.status === "alert").length;
+  const currentClearCount = currentEvidences.filter(e => e.status === "ok").length;
 
   /* ═══ DESKTOP SIDEBAR ═══ */
   const Sidebar = () => (
     <div className="hidden lg:flex w-[52px] h-screen bg-navy flex-col items-center py-4 gap-0.5 flex-shrink-0">
       <div className={`mb-6 ${cx.btnIcon} hover:rotate-3 cursor-pointer`} onClick={() => { setScreen("dashboard"); setMobileTab("home"); }}>{I.novo(28)}</div>
-      {SbIcon({ icon: I.home(true), active: true })}{SbIcon({ icon: I.search })}{SbIcon({ icon: I.inbox, badge: badgeCount })}{SbIcon({ icon: I.doc })}
+      {SbIcon({ icon: I.home(true), active: true, onClick: () => { setScreen("dashboard"); setMobileTab("home"); } })}{SbIcon({ icon: I.search, onClick: () => setScreen("searchScreen") })}{SbIcon({ icon: I.inbox, badge: badgeCount, onClick: () => setScreen("inboxFull") })}{SbIcon({ icon: I.doc })}
       <div className="flex-1" />{SbIcon({ icon: I.settings })}{SbIcon({ icon: I.sparkle })}
     </div>
   );
-  const SbIcon = ({ icon, active, badge }: { icon: React.ReactNode; active?: boolean; badge?: number }) => (
-    <button className={`w-9 h-9 flex items-center justify-center rounded-lg relative ${cx.btnIcon} ${active ? "bg-white/15 text-white" : "text-white/40 hover:text-white/70 hover:bg-white/5"}`}>
+  const SbIcon = ({ icon, active, badge, onClick }: { icon: React.ReactNode; active?: boolean; badge?: number; onClick?: () => void }) => (
+    <button onClick={onClick} className={`w-9 h-9 flex items-center justify-center rounded-lg relative ${cx.btnIcon} ${active ? "bg-white/15 text-white" : "text-white/40 hover:text-white/70 hover:bg-white/5"}`}>
       {icon}{badge ? <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-danger-700 text-white text-[8px] font-bold rounded-full flex items-center justify-center" style={{ animation: "bounceIn .4s ease" }}>{badge}</span> : null}
     </button>
   );
@@ -271,6 +291,20 @@ export default function Home() {
     </div>
   );
 
+  /* ═══ SORTING ═══ */
+  const statusOrder: Record<string, number> = { Alert: 0, "In Progress": 1, Todo: 2, Backlog: 3, Done: 4, Cancelled: 5 };
+  const priorityOrder: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+  const alertRow = { id: "alert" as const, type: "Ticket", project: "Ozempic L...", title: "Wine & spirits detected", status: "Alert", sColor: "danger", priority: "Critical", arrow: "↑" };
+
+  const getSortedRows = () => {
+    const rows = sortBy && alertVisible ? [alertRow, ...tableRows] : [...tableRows];
+    if (!sortBy) return rows;
+    return rows.sort((a, b) => {
+      if (sortBy === "status") return (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99);
+      return (priorityOrder[a.priority] ?? 99) - (priorityOrder[b.priority] ?? 99);
+    });
+  };
+
   /* ═══ DASHBOARD ═══ */
   const Dashboard = () => (
     <div className="flex-1 h-full overflow-y-auto bg-nn-50 px-4 pt-5 pb-20 lg:p-6 lg:pb-6" style={{ animation: "fadeIn .2s ease" }}>
@@ -314,33 +348,29 @@ export default function Home() {
         {/* Tabs */}
         <div className="flex items-center justify-between mb-3 lg:mb-4">
           <div className="flex gap-4 lg:gap-5">
-            <button className={`pb-2 text-[13px] font-semibold text-navy border-b-2 border-navy ${cx.btn}`}>Evidences</button>
-            <button className={`pb-2 text-[13px] text-nn-400 hover:text-nn-600 border-b-2 border-transparent hover:border-nn-200 ${cx.btn}`}>Projects <span className="ml-1 text-[10px] bg-nn-100 text-nn-500 px-1.5 py-0.5 rounded-full">3</span></button>
-          </div>
-          <div className="hidden lg:flex items-center gap-1.5">
-            <button className={`px-2.5 py-1 text-[11px] border border-nn-200 rounded-lg text-nn-600 hover:bg-nn-50 hover:border-nn-300 ${cx.btn}`}>Customize Columns</button>
-            <button className={`px-2.5 py-1 text-[11px] border border-nn-200 rounded-lg text-nn-600 hover:bg-nn-50 hover:border-nn-300 ${cx.btn}`}>+ Add columns</button>
+            <button onClick={() => setActiveTab("evidences")} className={`pb-2 text-[13px] font-semibold border-b-2 ${cx.btn} ${activeTab === "evidences" ? "text-navy border-navy" : "text-nn-400 hover:text-nn-600 border-transparent hover:border-nn-200"}`}>Evidences</button>
+            <button onClick={() => setActiveTab("projects")} className={`pb-2 text-[13px] font-semibold border-b-2 ${cx.btn} ${activeTab === "projects" ? "text-navy border-navy" : "text-nn-400 hover:text-nn-600 border-transparent hover:border-nn-200"}`}>Projects <span className="ml-1 text-[10px] bg-nn-100 text-nn-500 px-1.5 py-0.5 rounded-full">{projects.length}</span></button>
           </div>
         </div>
 
+        {activeTab === "evidences" && <>
         {/* Mobile search */}
-        <div className="lg:hidden mb-3"><input type="text" placeholder="Filter tasks..." className={`w-full px-3 py-2.5 text-[14px] border border-nn-200 rounded-xl bg-white outline-none focus:border-sea-500 text-nn-700 placeholder:text-nn-400 ${cx.input}`} /></div>
+        <div className="lg:hidden mb-3"><input type="text" placeholder="Filter evidences..." className={`w-full px-3 py-2.5 text-[14px] border border-nn-200 rounded-xl bg-white outline-none focus:border-sea-500 text-nn-700 placeholder:text-nn-400 ${cx.input}`} /></div>
         {/* Desktop filters */}
         <div className="hidden lg:flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <input type="text" placeholder="Filter tasks..." className={`px-2.5 py-1.5 text-[12px] border border-nn-200 rounded-lg w-44 outline-none focus:border-sea-500 text-nn-700 placeholder:text-nn-400 ${cx.input}`} />
-            <button className={`px-2.5 py-1.5 text-[11px] border border-nn-200 rounded-lg text-nn-500 hover:bg-nn-50 hover:border-nn-300 ${cx.btn}`}>⊕ Status</button>
-            <button className={`px-2.5 py-1.5 text-[11px] border border-nn-200 rounded-lg text-nn-500 hover:bg-nn-50 hover:border-nn-300 ${cx.btn}`}>⊕ Priority</button>
+            <input type="text" placeholder="Filter evidences..." className={`px-2.5 py-1.5 text-[12px] border border-nn-200 rounded-lg w-44 outline-none focus:border-sea-500 text-nn-700 placeholder:text-nn-400 ${cx.input}`} />
+            <button onClick={() => setSortBy(s => s === "status" ? null : "status")} className={`px-2.5 py-1.5 text-[11px] border rounded-lg ${cx.btn} ${sortBy === "status" ? "border-sea-400 bg-sea-50 text-sea-900" : "border-nn-200 text-nn-500 hover:bg-nn-50 hover:border-nn-300"}`}>⊕ Status</button>
+            <button onClick={() => setSortBy(s => s === "priority" ? null : "priority")} className={`px-2.5 py-1.5 text-[11px] border rounded-lg ${cx.btn} ${sortBy === "priority" ? "border-sea-400 bg-sea-50 text-sea-900" : "border-nn-200 text-nn-500 hover:bg-nn-50 hover:border-nn-300"}`}>⊕ Priority</button>
           </div>
           <div className="flex items-center gap-1.5">
-            <button className={`px-2.5 py-1.5 text-[11px] border border-nn-200 rounded-lg text-nn-500 hover:bg-nn-50 hover:border-nn-300 ${cx.btn}`}>View</button>
-            <button className={`px-3 py-1.5 text-[11px] bg-sea-900 text-white rounded-lg hover:bg-sea-800 font-medium hover:shadow-[0_2px_8px_rgba(0,90,210,0.25)] ${cx.btn}`}>Add Task</button>
+            <button className={`px-3 py-1.5 text-[11px] bg-sea-900 text-white rounded-lg hover:bg-sea-800 font-medium hover:shadow-[0_2px_8px_rgba(0,90,210,0.25)] ${cx.btn}`}>Add Evidence</button>
           </div>
         </div>
 
         {/* MOBILE: card list */}
         <div className="lg:hidden space-y-2">
-          {alertVisible && (
+          {alertVisible && !sortBy && (
             <button onClick={() => setScreen("ticket")} className={`w-full text-left bg-danger-50 rounded-xl p-3.5 ring-1 ring-danger-200 ${cx.cardTap}`} style={{ animation: "slideUp .35s ease, subtlePulse 2.5s ease .5s infinite" }}>
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-danger-600" style={{ animation: "pulse 1.5s ease infinite" }} /><span className="font-mono text-[11px] text-danger-800">9201</span></div>
@@ -353,17 +383,17 @@ export default function Home() {
               </div>
             </button>
           )}
-          {tableRows.slice(0, 6).map((r, i) => (
-            <div key={r.id} className={`bg-white rounded-xl p-3.5 shadow-[0_1px_3px_rgba(0,25,101,0.04)] ${cx.cardTap} ${cx.card}`} style={{ animation: `slideUp .3s ease ${(alertVisible ? 0.06 : 0) + i * 0.04}s both` }}>
+          {getSortedRows().slice(0, 6).map((r, i) => (
+            <div key={r.id} className={`rounded-xl p-3.5 ${cx.cardTap} ${cx.card} ${r.id === "alert" ? "bg-danger-50 ring-1 ring-danger-200" : "bg-white shadow-[0_1px_3px_rgba(0,25,101,0.04)]"}`} style={{ animation: `slideUp .3s ease ${i * 0.04}s both` }}>
               <div className="flex items-center justify-between mb-1.5">
-                <div className="flex items-center gap-1.5"><span className={`w-1.5 h-1.5 rounded-full ${statusDotCls[r.sColor]}`} /><span className="font-mono text-[11px] text-nn-500">{r.id}</span></div>
-                <span className="text-[10px] text-nn-500">{r.arrow} {r.priority}</span>
+                <div className="flex items-center gap-1.5"><span className={`w-1.5 h-1.5 rounded-full ${r.id === "alert" ? "bg-danger-600" : statusDotCls[r.sColor]}`} style={r.id === "alert" ? { animation: "pulse 1.5s ease infinite" } : undefined} /><span className={`font-mono text-[11px] ${r.id === "alert" ? "text-danger-800" : "text-nn-500"}`}>{r.id === "alert" ? "9201" : r.id}</span></div>
+                {r.id === "alert" ? <span className="px-1.5 py-0.5 bg-danger-700 text-white text-[9px] font-bold rounded flex items-center gap-0.5">{I.alert} ALCOHOL</span> : <span className="text-[10px] text-nn-500">{r.arrow} {r.priority}</span>}
               </div>
-              <p className="text-[13px] font-medium text-nn-800 mb-1.5">{r.title}</p>
+              <p className={`text-[13px] font-medium mb-1.5 ${r.id === "alert" ? "text-danger-800" : "text-nn-800"}`}>{r.title}</p>
               <div className="flex items-center gap-1.5">
-                <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors duration-200 ${r.type === "Photo" ? "bg-nn-100 text-nn-600" : "bg-sea-50 text-sea-900"}`}>{r.type}</span>
-                <span className="px-1.5 py-0.5 bg-nn-100 text-nn-500 text-[10px] font-medium rounded">{r.project}</span>
-                <span className="text-[11px] text-nn-500 ml-auto">{r.status}</span>
+                <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors duration-200 ${r.id === "alert" ? "bg-danger-100 text-danger-800" : r.type === "Photo" ? "bg-nn-100 text-nn-600" : "bg-sea-50 text-sea-900"}`}>{r.type}</span>
+                <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${r.id === "alert" ? "bg-danger-100 text-danger-800" : "bg-nn-100 text-nn-500"}`}>{r.project}</span>
+                <span className={`text-[11px] ml-auto ${r.id === "alert" ? "text-danger-700" : "text-nn-500"}`}>{r.status}</span>
               </div>
             </div>
           ))}
@@ -371,8 +401,8 @@ export default function Home() {
 
         {/* DESKTOP: table */}
         <div className="hidden lg:block bg-white rounded-xl shadow-[0_1px_3px_rgba(0,25,101,0.04)] overflow-hidden" style={{ animation: "slideUp .3s ease .1s both" }}>
-          <div className="grid grid-cols-[36px_110px_1fr_110px_90px_32px] px-4 py-2 border-b border-nn-100 text-[11px] text-nn-500 font-medium uppercase tracking-wider"><div /><div>ID</div><div>Title</div><div>Status</div><div>Priority</div><div /></div>
-          {alertVisible && (
+          <div className="grid grid-cols-[36px_110px_1fr_110px_90px_32px] px-4 py-2 border-b border-nn-100 text-[11px] text-nn-500 font-medium uppercase tracking-wider"><div /><div>ID</div><div>Title</div><div onClick={() => setSortBy(s => s === "status" ? null : "status")} className="cursor-pointer hover:text-nn-700">Status {sortBy === "status" ? "▼" : ""}</div><div onClick={() => setSortBy(s => s === "priority" ? null : "priority")} className="cursor-pointer hover:text-nn-700">Priority {sortBy === "priority" ? "▼" : ""}</div><div /></div>
+          {alertVisible && !sortBy && (
             <div className="grid grid-cols-[36px_110px_1fr_110px_90px_32px] px-4 py-2.5 border-b border-danger-200 bg-danger-50 items-center text-[13px] relative group cursor-pointer transition-all duration-200 hover:bg-danger-100/70" onMouseEnter={() => setHoveredAlert(true)} onMouseLeave={() => setHoveredAlert(false)} style={{ animation: "slideUp .35s ease" }}>
               <div><input type="checkbox" className="rounded border-nn-300 accent-sea-900 transition-transform duration-150 hover:scale-110" /></div>
               <div className="font-mono text-[11px] text-danger-800">9201</div>
@@ -383,15 +413,27 @@ export default function Home() {
               {hoveredAlert && <div className="absolute right-10 top-1/2 -translate-y-1/2 z-10 bg-navy text-white rounded-lg shadow-xl px-3 py-2" style={{ animation: "scaleIn .15s ease" }}><button onClick={() => setScreen("ticket")} className={`text-[11px] font-medium whitespace-nowrap hover:text-sea-300 flex items-center gap-1.5 ${cx.btn}`}><span style={{ animation: "float 2s ease infinite" }}>{I.sparkle}</span> Solve with NovoVision Agent</button></div>}
             </div>
           )}
-          {tableRows.map((r, i) => (
-            <div key={r.id} className="grid grid-cols-[36px_110px_1fr_110px_90px_32px] px-4 py-2.5 border-b border-nn-50 items-center text-[13px] hover:bg-nn-50/60 transition-all duration-200 group" style={{ animation: `fadeIn .2s ease ${i * 0.02}s both` }}>
-              <div><input type="checkbox" className="rounded border-nn-300 accent-sea-900 transition-transform duration-150 hover:scale-110" /></div>
-              <div className="font-mono text-[11px] text-nn-500">{r.id}</div>
-              <div className="flex items-center gap-1.5"><span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${r.type === "Photo" ? "bg-nn-100 text-nn-600" : "bg-sea-50 text-sea-900"}`}>{r.type}</span><span className="px-1.5 py-0.5 bg-nn-100 text-nn-500 text-[10px] font-medium rounded">{r.project}</span><span className="text-nn-800 text-[12px]">{r.title}</span></div>
-              <div className="flex items-center gap-1.5"><span className={`w-1.5 h-1.5 rounded-full ${statusDotCls[r.sColor]} transition-transform duration-200 group-hover:scale-125`} /><span className="text-[11px] text-nn-600">{r.status}</span></div>
-              <div className="text-[11px] text-nn-600">{r.arrow} {r.priority}</div>
-              <div className={`text-nn-400 text-[12px] cursor-pointer hover:text-nn-600 ${cx.btnIcon}`}>···</div>
-            </div>
+          {getSortedRows().map((r, i) => (
+            r.id === "alert" ? (
+              <div key="alert-sorted" className="grid grid-cols-[36px_110px_1fr_110px_90px_32px] px-4 py-2.5 border-b border-danger-200 bg-danger-50 items-center text-[13px] relative group cursor-pointer transition-all duration-200 hover:bg-danger-100/70" onMouseEnter={() => setHoveredAlert(true)} onMouseLeave={() => setHoveredAlert(false)}>
+                <div><input type="checkbox" className="rounded border-nn-300 accent-sea-900 transition-transform duration-150 hover:scale-110" /></div>
+                <div className="font-mono text-[11px] text-danger-800">9201</div>
+                <div className="flex items-center gap-1.5"><span className="px-1.5 py-0.5 bg-danger-100 text-danger-800 text-[10px] font-medium rounded">Ticket</span><span className="px-1.5 py-0.5 bg-danger-100 text-danger-800 text-[10px] font-medium rounded">Ozempic L...</span><span className="text-danger-800 font-medium text-[12px]">Wine & spirits detected</span><span className="ml-0.5 px-1.5 py-0.5 bg-danger-700 text-white text-[9px] font-bold rounded flex items-center gap-0.5">{I.alert} ALCOHOL</span></div>
+                <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-danger-600" style={{ animation: "pulse 1.5s ease infinite" }} /><span className="text-danger-700 text-[11px] font-medium">Alert</span></div>
+                <div className="text-danger-700 text-[11px] font-medium">↑ Critical</div>
+                <div className="text-nn-400 text-[12px]">···</div>
+                {hoveredAlert && <div className="absolute right-10 top-1/2 -translate-y-1/2 z-10 bg-navy text-white rounded-lg shadow-xl px-3 py-2" style={{ animation: "scaleIn .15s ease" }}><button onClick={() => setScreen("ticket")} className={`text-[11px] font-medium whitespace-nowrap hover:text-sea-300 flex items-center gap-1.5 ${cx.btn}`}><span style={{ animation: "float 2s ease infinite" }}>{I.sparkle}</span> Solve with NovoVision Agent</button></div>}
+              </div>
+            ) : (
+              <div key={r.id} className="grid grid-cols-[36px_110px_1fr_110px_90px_32px] px-4 py-2.5 border-b border-nn-50 items-center text-[13px] hover:bg-nn-50/60 transition-all duration-200 group" style={{ animation: `fadeIn .2s ease ${i * 0.02}s both` }}>
+                <div><input type="checkbox" className="rounded border-nn-300 accent-sea-900 transition-transform duration-150 hover:scale-110" /></div>
+                <div className="font-mono text-[11px] text-nn-500">{r.id}</div>
+                <div className="flex items-center gap-1.5"><span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${r.type === "Photo" ? "bg-nn-100 text-nn-600" : "bg-sea-50 text-sea-900"}`}>{r.type}</span><span className="px-1.5 py-0.5 bg-nn-100 text-nn-500 text-[10px] font-medium rounded">{r.project}</span><span className="text-nn-800 text-[12px]">{r.title}</span></div>
+                <div className="flex items-center gap-1.5"><span className={`w-1.5 h-1.5 rounded-full ${statusDotCls[r.sColor]} transition-transform duration-200 group-hover:scale-125`} /><span className="text-[11px] text-nn-600">{r.status}</span></div>
+                <div className="text-[11px] text-nn-600">{r.arrow} {r.priority}</div>
+                <div className={`text-nn-400 text-[12px] cursor-pointer hover:text-nn-600 ${cx.btnIcon}`}>···</div>
+              </div>
+            )
           ))}
         </div>
         <div className="hidden lg:flex items-center justify-between mt-3 text-[11px] text-nn-500">
@@ -400,6 +442,35 @@ export default function Home() {
             <div className="flex gap-0.5">{["«","‹","›","»"].map((c) => <button key={c} className={`w-6 h-6 border border-nn-200 rounded-md flex items-center justify-center hover:bg-nn-50 hover:border-nn-300 text-nn-500 ${cx.btn}`}>{c}</button>)}</div>
           </div>
         </div>
+        </>}
+
+        {/* PROJECTS TAB */}
+        {activeTab === "projects" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3" style={{ animation: "fadeIn .2s ease" }}>
+            {projects.map((p, i) => {
+              const isClickable = p.id === "P001";
+              return (
+                <button key={p.id} onClick={isClickable ? () => setScreen("projectDetail") : undefined} disabled={!isClickable}
+                  className={`text-left bg-white rounded-xl p-4 shadow-[0_1px_3px_rgba(0,25,101,0.04)] ${cx.card} ${isClickable ? "cursor-pointer hover:ring-1 hover:ring-sea-200" : "opacity-60 cursor-default"}`}
+                  style={{ animation: `slideUp .3s ease ${i * 0.06}s both` }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-mono text-[10px] text-nn-400">{p.id}</span>
+                    <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${p.status === "Active" ? "bg-ocean-50 text-ocean-800" : "bg-nn-100 text-nn-500"}`}>{p.status}</span>
+                  </div>
+                  <h3 className="text-[14px] font-semibold text-navy mb-1">{p.name}</h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${p.type === "Congress" ? "bg-sea-50 text-sea-900" : "bg-nn-100 text-nn-600"}`}>{p.type}</span>
+                    <span className="text-[11px] text-nn-500">{p.date}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-[11px]">
+                    <span className="text-nn-500">{p.evidences} evidences</span>
+                    {p.alerts > 0 ? <span className="text-danger-700 font-medium flex items-center gap-0.5">{I.alert} {p.alerts} alert</span> : <span className="text-ocean-700">No alerts</span>}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -409,7 +480,7 @@ export default function Home() {
     <div className="flex-1 h-full flex items-center justify-center bg-nn-50 px-5" style={{ animation: "fadeIn .2s ease" }}>
       <div className="w-full max-w-[440px]" style={{ animation: "scaleIn .3s ease" }}>
         <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,25,101,0.08)] p-5 lg:p-7">
-          <div className="flex items-center gap-3 mb-5"><div className="w-9 h-9 bg-sea-50 rounded-xl flex items-center justify-center text-sea-900" style={{ animation: "float 3s ease infinite" }}>{I.sparkle}</div><div><h2 className="font-semibold text-[15px] text-navy">Reviewing Evidences</h2><p className="text-[11px] text-nn-500">Ozempic Launch London — W. Smith</p></div></div>
+          <div className="flex items-center gap-3 mb-5"><div className="w-9 h-9 bg-sea-50 rounded-xl flex items-center justify-center text-sea-900" style={{ animation: "float 3s ease infinite" }}>{I.sparkle}</div><div><h2 className="font-semibold text-[15px] text-navy">Reviewing Evidences</h2><p className="text-[11px] text-nn-500">{personProject} — {personName}</p></div></div>
           <div className="space-y-2.5 mb-5">
             {loadingSteps.map((step, i) => { const done = loadingStep > i, active = loadingStep === i; return (
               <div key={i} className="flex items-center gap-2.5" style={{ animation: `slideUp .25s ease ${i * 0.08}s both` }}>
@@ -420,25 +491,27 @@ export default function Home() {
               </div>); })}
           </div>
           <div className="h-1 bg-nn-100 rounded-full overflow-hidden"><div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${(loadingStep / loadingSteps.length) * 100}%`, background: loadingDone ? "#419792" : "#005AD2" }} /></div>
-          {loadingDone && <div className="mt-3 flex items-center gap-2 text-[12px] text-ocean-800 font-medium" style={{ animation: "slideUp .25s ease" }}><div className="w-4 h-4 bg-ocean-100 rounded-full flex items-center justify-center text-ocean-700" style={{ animation: "checkPop .3s ease" }}>{I.check}</div>5 evidences processed — 1 alert found</div>}
+          {loadingDone && <div className="mt-3 flex items-center gap-2 text-[12px] text-ocean-800 font-medium" style={{ animation: "slideUp .25s ease" }}><div className="w-4 h-4 bg-ocean-100 rounded-full flex items-center justify-center text-ocean-700" style={{ animation: "checkPop .3s ease" }}>{I.check}</div>{currentEvidences.length} evidences processed — {currentAlertCount > 0 ? `${currentAlertCount} alert found` : "no alerts"}</div>}
         </div>
       </div>
     </div>
   );
 
   /* ═══ EVIDENCE LIST ═══ */
+  const personName = selectedPanel === "rosa" ? "R. Claramunt" : "W. Smith";
+  const personProject = selectedPanel === "rosa" ? "Ozempic Event Madrid" : "Ozempic Launch London";
   const EvidenceList = () => (
     <div className="flex-1 h-full overflow-y-auto bg-nn-50" style={{ animation: "fadeIn .2s ease" }}>
       {MobileHeader({ title: "Evidence Review", onBack: backToDash })}
       <div className="px-4 pt-4 lg:pt-6 lg:px-6 pb-6 lg:max-w-[760px] lg:mx-auto">
         <button onClick={backToDash} className={`hidden lg:flex items-center gap-1.5 text-[12px] text-nn-500 hover:text-navy mb-4 ${cx.backBtn}`}>{I.back} Back to Dashboard</button>
         <div className="flex items-center justify-between mb-4 lg:mb-5">
-          <div><h1 className="hidden lg:block text-[18px] font-bold text-navy" style={{ animation: "slideUp .3s ease" }}>Evidence Review</h1><p className="text-[12px] text-nn-500 mt-0.5">Ozempic Launch London — W. Smith — 5 evidences</p></div>
-          <div className="flex items-center gap-1.5 lg:gap-2"><span className="px-2 py-0.5 lg:py-1 bg-ocean-50 text-ocean-800 text-[11px] font-medium rounded-full" style={{ animation: "scaleIn .3s ease .1s both" }}>4 Clear</span><span className="px-2 py-0.5 lg:py-1 bg-danger-50 text-danger-700 text-[11px] font-medium rounded-full flex items-center gap-1" style={{ animation: "scaleIn .3s ease .15s both" }}>{I.alert} 1 Alert</span></div>
+          <div><h1 className="hidden lg:block text-[18px] font-bold text-navy" style={{ animation: "slideUp .3s ease" }}>Evidence Review</h1><p className="text-[12px] text-nn-500 mt-0.5">{personProject} — {personName} — {currentEvidences.length} evidences</p></div>
+          <div className="flex items-center gap-1.5 lg:gap-2"><span className="px-2 py-0.5 lg:py-1 bg-ocean-50 text-ocean-800 text-[11px] font-medium rounded-full" style={{ animation: "scaleIn .3s ease .1s both" }}>{currentClearCount} Clear</span>{currentAlertCount > 0 && <span className="px-2 py-0.5 lg:py-1 bg-danger-50 text-danger-700 text-[11px] font-medium rounded-full flex items-center gap-1" style={{ animation: "scaleIn .3s ease .15s both" }}>{I.alert} {currentAlertCount} Alert</span>}</div>
         </div>
         <div className="space-y-2">
-          {evidences.map((ev, i) => (
-            <div key={ev.id} className={`bg-white rounded-xl p-3 lg:p-3.5 ${cx.card} ${ev.status === "alert" ? "shadow-[0_2px_12px_rgba(219,58,31,0.08)] ring-1 ring-danger-200" : "shadow-[0_1px_3px_rgba(0,25,101,0.04)]"}`} style={{ animation: `slideUp .3s ease ${i * 0.06}s both` }}>
+          {currentEvidences.map((ev, i) => (
+            <div key={ev.id} onClick={() => { if (ev.status === "ok") { setSelectedEvidence(ev.id); setScreen("evidenceDetail"); } }} className={`bg-white rounded-xl p-3 lg:p-3.5 ${cx.card} ${ev.status === "ok" ? "cursor-pointer" : ""} ${ev.status === "alert" ? "shadow-[0_2px_12px_rgba(219,58,31,0.08)] ring-1 ring-danger-200" : "shadow-[0_1px_3px_rgba(0,25,101,0.04)]"}`} style={{ animation: `slideUp .3s ease ${i * 0.06}s both` }}>
               <div className="flex items-start gap-2.5">
                 {ev.status === "ok" ? <div className="w-7 h-7 bg-ocean-50 rounded-lg flex items-center justify-center text-ocean-700 flex-shrink-0 mt-0.5" style={{ animation: `checkPop .3s ease ${i * 0.06 + 0.2}s both` }}>{I.check}</div>
                   : <div className="w-7 h-7 bg-danger-50 rounded-lg flex items-center justify-center text-danger-700 flex-shrink-0 mt-0.5" style={{ animation: "subtlePulse 2s ease infinite" }}>{I.alert}</div>}
@@ -450,7 +523,7 @@ export default function Home() {
                   <p className="text-[12px] font-medium text-nn-900 mb-1 leading-snug">{ev.title}</p>
                   <div className="flex items-center justify-between">
                     <div className="text-[11px] text-nn-400 flex items-center gap-2">AI: {ev.confidence}%<span className="inline-block w-10 h-[3px] bg-nn-100 rounded-full overflow-hidden align-middle"><span className={`block h-full rounded-full transition-all duration-700 ease-out ${ev.confidence > 95 ? "bg-ocean-600" : ev.confidence > 90 ? "bg-sea-600" : "bg-nn-400"}`} style={{ width: `${ev.confidence}%`, animation: `slideRight .6s ease ${i * 0.06 + 0.3}s both` }} /></span></div>
-                    {ev.status === "alert" ? <button onClick={() => setScreen("ticket")} className={`px-3 py-1.5 lg:px-3.5 lg:py-2 bg-danger-700 text-white text-[11px] lg:text-[12px] font-medium rounded-lg hover:bg-danger-800 hover:shadow-[0_2px_8px_rgba(219,58,31,0.25)] flex items-center gap-1 ${cx.btn}`}>{I.alert} Review</button>
+                    {ev.status === "alert" ? <button onClick={(e) => { e.stopPropagation(); setScreen("ticket"); }} className={`px-3 py-1.5 lg:px-3.5 lg:py-2 bg-danger-700 text-white text-[11px] lg:text-[12px] font-medium rounded-lg hover:bg-danger-800 hover:shadow-[0_2px_8px_rgba(219,58,31,0.25)] flex items-center gap-1 ${cx.btn}`}>{I.alert} Review</button>
                       : <span className="px-2 py-0.5 text-[10px] lg:text-[11px] text-ocean-700 bg-ocean-50 rounded-lg font-medium">Passed</span>}
                   </div>
                 </div>
@@ -658,20 +731,250 @@ export default function Home() {
     </div>
   );
 
+  /* ═══ EVIDENCE DETAIL ═══ */
+  const EvidenceDetailView = () => {
+    const ev = currentEvidences.find(e => e.id === selectedEvidence);
+    if (!ev) return null;
+    const isPhoto = ev.type === "Photo";
+    return (
+      <div className="flex-1 h-full overflow-y-auto bg-nn-50" style={{ animation: "fadeIn .2s ease" }}>
+        {MobileHeader({ title: "Evidence Detail", onBack: () => setScreen("evidences") })}
+        <div className="px-4 pt-4 lg:pt-6 lg:px-6 pb-8 lg:max-w-[760px] lg:mx-auto">
+          <button onClick={() => setScreen("evidences")} className={`hidden lg:flex items-center gap-1.5 text-[12px] text-nn-500 hover:text-navy mb-4 ${cx.backBtn}`}>{I.back} Back to Evidence List</button>
+          <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,25,101,0.06)] overflow-hidden" style={{ animation: "scaleIn .3s ease" }}>
+            <div className="bg-ocean-700 text-white px-4 lg:px-5 py-2.5 flex items-center gap-2">{I.check}<span className="font-medium text-[12px]">Evidence passed compliance checks</span></div>
+            <div className="p-4 lg:p-6">
+              {isPhoto ? (
+                <>
+                  <div className="bg-nn-100 rounded-xl h-48 lg:h-64 flex items-center justify-center mb-4" style={{ animation: "fadeIn .4s ease .1s both" }}>
+                    <div className="text-center text-nn-400">
+                      <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1} className="mx-auto mb-2 opacity-50"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      <span className="text-[12px]">{ev.title}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3 text-[12px]">
+                      <div><span className="text-nn-400 text-[10px] uppercase tracking-wider">Date captured</span><p className="font-medium text-nn-800 mt-0.5">14 Mar 2025, 19:45</p></div>
+                      <div><span className="text-nn-400 text-[10px] uppercase tracking-wider">Location</span><p className="font-medium text-nn-800 mt-0.5">ExCeL London, UK</p></div>
+                      <div><span className="text-nn-400 text-[10px] uppercase tracking-wider">AI Confidence</span><p className="font-medium text-nn-800 mt-0.5">{ev.confidence}%</p></div>
+                      <div><span className="text-nn-400 text-[10px] uppercase tracking-wider">Source</span><p className="font-medium text-nn-800 mt-0.5">Azure Vision</p></div>
+                    </div>
+                    <div className="border-t border-nn-100 pt-3">
+                      <h4 className="text-[12px] font-semibold text-navy mb-2">Compliance Checks</h4>
+                      <div className="space-y-1.5">
+                        {["No alcohol detected", "Appropriate venue type", "No prohibited branding", "Attendee count within policy"].map((check, i) => (
+                          <div key={i} className="flex items-center gap-2 text-[12px]" style={{ animation: `slideRight .2s ease ${i * 0.06}s both` }}>
+                            <div className="w-4 h-4 bg-ocean-100 rounded-full flex items-center justify-center text-ocean-700">{I.check}</div>
+                            <span className="text-nn-700">{check}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="bg-nn-50 rounded-xl border border-nn-100 p-4 lg:p-5 font-mono text-[11px] lg:text-[12px] mb-4" style={{ animation: "fadeIn .3s ease .1s both" }}>
+                    <div className="text-center mb-3 pb-3 border-b border-dashed border-nn-300">
+                      <div className="font-bold text-[13px] lg:text-[14px] text-navy mb-0.5">{ev.id === 2 ? "RESTAURANTE EL CELLER" : "RECEIPT"}</div>
+                      <div className="text-[10px] text-nn-500">{ev.id === 2 ? "C/ Gran Vía 28, Madrid" : "Conference venue"}</div>
+                    </div>
+                    <div className="space-y-1 mb-3 pb-3 border-b border-dashed border-nn-300 text-nn-800">
+                      {ev.id === 2 ? (
+                        [["2x Entrante del día","24.00€"],["3x Solomillo ibérico","87.00€"],["2x Lubina al horno","52.00€"],["1x Ensalada César","14.50€"],["5x Café","12.50€"],["2x Postre","18.00€"]].map(([item,price], i) => (
+                          <div key={i} className="flex justify-between" style={{ animation: `slideRight .2s ease ${i * 0.03}s both` }}><span>{item}</span><span>{price}</span></div>
+                        ))
+                      ) : (
+                        [["1x Registration fee","350.00€"],["1x Conference materials","45.00€"],["1x Lunch package","28.00€"]].map(([item,price], i) => (
+                          <div key={i} className="flex justify-between" style={{ animation: `slideRight .2s ease ${i * 0.03}s both` }}><span>{item}</span><span>{price}</span></div>
+                        ))
+                      )}
+                    </div>
+                    <div className="flex justify-between font-bold text-[13px] text-navy"><span>TOTAL</span><span>{ev.id === 2 ? "208.00€" : "423.00€"}</span></div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3 text-[12px]">
+                      <div><span className="text-nn-400 text-[10px] uppercase tracking-wider">AI Confidence</span><p className="font-medium text-nn-800 mt-0.5">{ev.confidence}%</p></div>
+                      <div><span className="text-nn-400 text-[10px] uppercase tracking-wider">Source</span><p className="font-medium text-nn-800 mt-0.5">Document Intelligence</p></div>
+                    </div>
+                    <div className="border-t border-nn-100 pt-3">
+                      <h4 className="text-[12px] font-semibold text-navy mb-2">AI Analysis Summary</h4>
+                      <p className="text-[12px] text-nn-600 leading-relaxed">All line items are compliant with expense policy. No alcohol, prohibited items, or policy violations detected.</p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  /* ═══ SEARCH SCREEN ═══ */
+  const SearchScreen = () => (
+    <div className="flex-1 h-full flex flex-col bg-nn-50" style={{ animation: "fadeIn .2s ease" }}>
+      {MobileHeader({ title: "Search", onBack: () => { setScreen("dashboard"); setMobileTab("home"); } })}
+      <div className="hidden lg:block px-6 pt-6">
+        <button onClick={() => { setScreen("dashboard"); setMobileTab("home"); }} className={`flex items-center gap-1.5 text-[12px] text-nn-500 hover:text-navy mb-4 ${cx.backBtn}`}>{I.back} Back to Dashboard</button>
+      </div>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center" style={{ animation: "scaleIn .3s ease" }}>
+          <div className="w-16 h-16 bg-sea-50 rounded-2xl flex items-center justify-center text-sea-900 mx-auto mb-4" style={{ animation: "float 3s ease infinite" }}>{I.sparkle}</div>
+          <span className="px-4 py-2 bg-sea-50 text-sea-900 text-[13px] font-medium rounded-full inline-flex items-center gap-2">{I.sparkle} Coming Soon</span>
+          <p className="text-[12px] text-nn-500 mt-3">Global search across all evidences and projects</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  /* ═══ INBOX FULL SCREEN ═══ */
+  const InboxFullScreen = () => (
+    <div className="flex-1 h-full overflow-y-auto bg-nn-50" style={{ animation: "fadeIn .2s ease" }}>
+      {MobileHeader({ title: "New Evidences", onBack: () => { setScreen("dashboard"); setMobileTab("home"); } })}
+      <div className="px-4 pt-4 lg:pt-6 lg:px-6 pb-8 lg:max-w-[640px] lg:mx-auto">
+        <button onClick={() => { setScreen("dashboard"); setMobileTab("home"); }} className={`hidden lg:flex items-center gap-1.5 text-[12px] text-nn-500 hover:text-navy mb-4 ${cx.backBtn}`}>{I.back} Back to Dashboard</button>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-[18px] font-bold text-navy" style={{ animation: "slideUp .3s ease" }}>New Evidences</h1>
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] text-nn-500">{showAll ? "All" : "Unreviewed"}</span>
+            <div className={`w-8 h-[18px] rounded-full relative cursor-pointer transition-all duration-300 hover:shadow-[0_0_0_3px_rgba(0,90,210,0.15)] ${showAll ? "bg-nn-400" : "bg-sea-900"}`} onClick={() => setShowAll((p) => !p)}>
+              <div className={`w-3 h-3 bg-white rounded-full absolute top-[3px] transition-all duration-300 shadow-sm ${showAll ? "left-[3px]" : "right-[3px]"}`} />
+            </div>
+          </div>
+        </div>
+        <div className="space-y-2">
+          {displayedItems.map((item, i) => {
+            const isReviewed = isItemReviewed(item.key);
+            return (
+              <button key={item.key} onClick={isReviewed ? undefined : () => startReview(item.key)} disabled={isReviewed} className={`w-full text-left bg-white rounded-xl p-4 shadow-[0_1px_3px_rgba(0,25,101,0.04)] ${cx.cardTap} ${cx.card} ${isReviewed ? "opacity-50" : ""}`} style={{ animation: `slideUp .3s ease ${i * 0.06}s both` }}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`text-[14px] font-semibold ${isReviewed ? "line-through text-nn-500" : "text-nn-900"}`}>{item.name}</span>
+                  {isReviewed ? <span className="text-[10px] text-ocean-700 bg-ocean-50 px-1.5 py-0.5 rounded-full font-medium">Reviewed</span> : <span className="text-[12px] text-nn-400">{item.time}</span>}
+                </div>
+                <div className="text-[13px] text-nn-700">{item.project}</div>
+                <div className="flex items-center justify-between mt-2"><span className="text-[12px] text-nn-400">{item.evidences} evidences in queue</span><span className="text-nn-400">{I.chevron}</span></div>
+              </button>
+            );
+          })}
+          {displayedItems.length === 0 && (
+            <div className="py-8 text-center text-[13px] text-nn-400">No unreviewed evidences</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  /* ═══ PROJECT DETAIL ═══ */
+  const ProjectDetailScreen = () => {
+    const projectTableRows = [
+      { id: "9201", type: "Ticket", project: "Ozempic L...", title: "Wine & spirits detected", status: "Alert", sColor: "danger", priority: "Critical", arrow: "↑", isAlert: true },
+      { id: "8782", type: "Photo", project: "Ozempic L...", title: "People standing around a table", status: "In Progress", sColor: "sea", priority: "Medium", arrow: "→", isAlert: false },
+      { id: "5562", type: "Photo", project: "Ozempic L...", title: "Speaker during conference", status: "Backlog", sColor: "nn", priority: "Medium", arrow: "→", isAlert: false },
+      { id: "7184", type: "Photo", project: "Ozempic L...", title: "Round table in an event", status: "Todo", sColor: "nn", priority: "Low", arrow: "↓", isAlert: false },
+      { id: "3341", type: "Ticket", project: "Ozempic L...", title: "Venue rental receipt", status: "Done", sColor: "ocean", priority: "Medium", arrow: "→", isAlert: false },
+      { id: "3342", type: "Photo", project: "Ozempic L...", title: "Registration desk setup", status: "Done", sColor: "ocean", priority: "Low", arrow: "↓", isAlert: false },
+    ];
+    return (
+      <div className="flex-1 h-full overflow-y-auto bg-nn-50" style={{ animation: "fadeIn .2s ease" }}>
+        {MobileHeader({ title: "Ozempic Launch London", onBack: () => { setScreen("dashboard"); setActiveTab("projects"); } })}
+        <div className="px-4 pt-4 lg:pt-6 lg:px-6 pb-8 lg:max-w-[1080px] lg:mx-auto">
+          <button onClick={() => { setScreen("dashboard"); setActiveTab("projects"); }} className={`hidden lg:flex items-center gap-1.5 text-[12px] text-nn-500 hover:text-navy mb-4 ${cx.backBtn}`}>{I.back} Back to Projects</button>
+          {/* Header */}
+          <div className={`bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,25,101,0.06)] p-4 lg:p-6 mb-4 ${cx.card}`} style={{ animation: "scaleIn .3s ease" }}>
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h1 className="text-[18px] lg:text-[22px] font-bold text-navy mb-1">Ozempic Launch London</h1>
+                <div className="flex items-center gap-2 flex-wrap text-[12px] text-nn-500">
+                  <span className="px-1.5 py-0.5 bg-sea-50 text-sea-900 text-[10px] font-medium rounded">Congress</span>
+                  <span>Mar 14-16, 2025</span>
+                  <span className="text-nn-300">|</span>
+                  <span>ExCeL London</span>
+                </div>
+              </div>
+              <span className="px-2 py-0.5 bg-ocean-50 text-ocean-800 text-[10px] font-medium rounded-full">Active</span>
+            </div>
+            <p className="text-[12px] text-nn-600 mb-4 leading-relaxed">Annual launch event for Ozempic in the UK market. 45 attendees including 12 Healthcare Professionals.</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {([["12","Evidences","ocean"],["1","Alert","danger"],["4","Employees","sea"],["45","Attendees","nn"]] as const).map(([val, label, color], i) => (
+                <div key={label} className="text-center p-2 bg-nn-50 rounded-lg" style={{ animation: `slideUp .25s ease ${i * 0.06}s both` }}>
+                  <div className={`text-[20px] font-bold ${color === "danger" ? "text-danger-700" : "text-navy"}`}><CountUp to={parseInt(val)} /></div>
+                  <div className="text-[10px] text-nn-500">{label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Evidence table */}
+          <h2 className="text-[14px] font-semibold text-navy mb-3" style={{ animation: "slideUp .3s ease .1s both" }}>Project Evidences</h2>
+          {/* Mobile cards */}
+          <div className="lg:hidden space-y-2">
+            {projectTableRows.map((r, i) => (
+              <div key={r.id} onClick={r.isAlert ? () => setScreen("ticket") : undefined}
+                className={`rounded-xl p-3.5 ${cx.cardTap} ${cx.card} ${r.isAlert ? "bg-danger-50 ring-1 ring-danger-200 cursor-pointer" : "bg-white shadow-[0_1px_3px_rgba(0,25,101,0.04)]"}`}
+                style={{ animation: `slideUp .3s ease ${i * 0.04}s both` }}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-1.5"><span className={`w-1.5 h-1.5 rounded-full ${r.isAlert ? "bg-danger-600" : statusDotCls[r.sColor]}`} style={r.isAlert ? { animation: "pulse 1.5s ease infinite" } : undefined} /><span className={`font-mono text-[11px] ${r.isAlert ? "text-danger-800" : "text-nn-500"}`}>{r.id}</span></div>
+                  {r.isAlert ? <span className="px-1.5 py-0.5 bg-danger-700 text-white text-[9px] font-bold rounded flex items-center gap-0.5">{I.alert} ALCOHOL</span> : <span className="text-[10px] text-nn-500">{r.arrow} {r.priority}</span>}
+                </div>
+                <p className={`text-[13px] font-medium mb-1.5 ${r.isAlert ? "text-danger-800" : "text-nn-800"}`}>{r.title}</p>
+                <div className="flex items-center gap-1.5">
+                  <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${r.isAlert ? "bg-danger-100 text-danger-800" : r.type === "Photo" ? "bg-nn-100 text-nn-600" : "bg-sea-50 text-sea-900"}`}>{r.type}</span>
+                  <span className={`text-[11px] ml-auto ${r.isAlert ? "text-danger-700" : "text-nn-500"}`}>{r.status}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Desktop table */}
+          <div className="hidden lg:block bg-white rounded-xl shadow-[0_1px_3px_rgba(0,25,101,0.04)] overflow-hidden" style={{ animation: "slideUp .3s ease .15s both" }}>
+            <div className="grid grid-cols-[36px_110px_1fr_110px_90px_32px] px-4 py-2 border-b border-nn-100 text-[11px] text-nn-500 font-medium uppercase tracking-wider"><div /><div>ID</div><div>Title</div><div>Status</div><div>Priority</div><div /></div>
+            {projectTableRows.map((r, i) => (
+              r.isAlert ? (
+                <div key={r.id} className="grid grid-cols-[36px_110px_1fr_110px_90px_32px] px-4 py-2.5 border-b border-danger-200 bg-danger-50 items-center text-[13px] cursor-pointer transition-all duration-200 hover:bg-danger-100/70" onClick={() => setScreen("ticket")} style={{ animation: `slideUp .3s ease ${i * 0.03}s both` }}>
+                  <div><input type="checkbox" className="rounded border-nn-300 accent-sea-900" /></div>
+                  <div className="font-mono text-[11px] text-danger-800">{r.id}</div>
+                  <div className="flex items-center gap-1.5"><span className="px-1.5 py-0.5 bg-danger-100 text-danger-800 text-[10px] font-medium rounded">{r.type}</span><span className="text-danger-800 font-medium text-[12px]">{r.title}</span><span className="ml-0.5 px-1.5 py-0.5 bg-danger-700 text-white text-[9px] font-bold rounded flex items-center gap-0.5">{I.alert} ALCOHOL</span></div>
+                  <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-danger-600" style={{ animation: "pulse 1.5s ease infinite" }} /><span className="text-danger-700 text-[11px] font-medium">{r.status}</span></div>
+                  <div className="text-danger-700 text-[11px] font-medium">{r.arrow} {r.priority}</div>
+                  <div className="text-nn-400 text-[12px]">···</div>
+                </div>
+              ) : (
+                <div key={r.id} className="grid grid-cols-[36px_110px_1fr_110px_90px_32px] px-4 py-2.5 border-b border-nn-50 items-center text-[13px] hover:bg-nn-50/60 transition-all duration-200 group" style={{ animation: `fadeIn .2s ease ${i * 0.02}s both` }}>
+                  <div><input type="checkbox" className="rounded border-nn-300 accent-sea-900" /></div>
+                  <div className="font-mono text-[11px] text-nn-500">{r.id}</div>
+                  <div className="flex items-center gap-1.5"><span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${r.type === "Photo" ? "bg-nn-100 text-nn-600" : "bg-sea-50 text-sea-900"}`}>{r.type}</span><span className="text-nn-800 text-[12px]">{r.title}</span></div>
+                  <div className="flex items-center gap-1.5"><span className={`w-1.5 h-1.5 rounded-full ${statusDotCls[r.sColor]}`} /><span className="text-[11px] text-nn-600">{r.status}</span></div>
+                  <div className="text-[11px] text-nn-600">{r.arrow} {r.priority}</div>
+                  <div className={`text-nn-400 text-[12px] cursor-pointer hover:text-nn-600 ${cx.btnIcon}`}>···</div>
+                </div>
+              )
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   /* ═══ RENDER ═══ */
   const renderContent = () => {
     if (screen === "loading") return LoadingScreen();
     if (screen === "evidences") return EvidenceList();
     if (screen === "ticket") return TicketDetail();
     if (screen === "agent") return AgentScreen();
+    if (screen === "evidenceDetail") return EvidenceDetailView();
+    if (screen === "inboxFull") return InboxFullScreen();
+    if (screen === "searchScreen") return SearchScreen();
+    if (screen === "projectDetail") return ProjectDetailScreen();
     if (mobileTab === "inbox" && !inSubFlow) return MobileInbox();
     return Dashboard();
   };
 
+  const hideLeftPanel = screen === "inboxFull" || screen === "searchScreen" || screen === "projectDetail";
+
   return (
     <div className="flex h-screen overflow-hidden">
       {Sidebar()}
-      {screen === "dashboard" && LeftPanel()}
+      {screen === "dashboard" && !hideLeftPanel && LeftPanel()}
       <div className="flex-1 h-screen flex flex-col overflow-hidden">{renderContent()}</div>
       {BottomNav()}
     </div>
