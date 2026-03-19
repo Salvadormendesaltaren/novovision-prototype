@@ -1,0 +1,25 @@
+:root {
+  /* Typography — Noto Sans (loaded via Google Fonts) */
+  --font-display: 'Noto Sans', 'Avenir Next', 'Segoe UI', sans-serif;
+  --font-body: 'Noto Sans', 'Avenir Next', 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace;
+
+  /* Novo Nordisk palette */
+  --nn-navy: #001965;
+  --nn-sea-900: #005AD2;
+  --nn-sea-700: #3380DB;
+  --nn-sea-500: #66A3E4;
+  --nn-sea-100: #CCE6F6;
+  --nn-sea-50: #E8F2FC;
+
+  /* Theme tokens (dark mode) */
+  --neutral-00: #0c1525;
+  --neutral-100: #111d33;
+  --neutral-200: #1c2d4a;
+  --neutral-300: #2a3f60;
+  --neutral-600: rgba(255, 255, 255, 0.65);
+  --neutral-900: #eef1f5;
+
+  /* Primary accent */
+  --blue-500: var(--nn-sea-700);
+}

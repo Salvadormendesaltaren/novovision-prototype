@@ -1,0 +1,270 @@
+{
+  "meta": {
+    "label": "Tailor Hub · Propuesta Comercial · 2024",
+    "title": "Novo Nordisk",
+    "subtitle": "Propuesta para diseñar y desarrollar una plataforma inteligente de monitorización y compliance de gastos corporativos. De procesos manuales en SAP Concur a una plataforma automatizada con IA.",
+    "stats": [
+      { "label": "Pilares de solución", "value": "5" },
+      { "label": "Pipelines AI", "value": "2" },
+      { "label": "Fases de diseño", "value": "6" },
+      { "label": "Sprint cycle", "value": "2 sem" },
+      { "label": "Versión", "value": "1.0 · 2024" }
+    ]
+  },
+  "intro": [
+    "Somos Tailor Hub, una consultora tecnológica especializada en Inteligencia Artificial y desarrollo de software enterprise. Ayudamos a grandes compañías a transformar sus procesos operativos con soluciones digitales a medida.",
+    "Nuestro equipo combina experiencia en ingeniería de software, ciencia de datos y diseño de producto para entregar plataformas que generan impacto desde el primer sprint.",
+    "Formamos parte del grupo Modulor Studios junto a mendesaltaren (diseño de producto y branding), FIK (Shopify Premier Partner), SSTIL (marketing y comunicación) y Nocodehackers (automatizaciones y no-code). Cuando necesitas más que desarrollo, tienes acceso a todo el grupo desde una sola relación.",
+    "Trabajamos con metodologías ágiles, equipos dedicados y una cultura de ownership que nos convierte en un verdadero partner tecnológico."
+  ],
+  "partnership": {
+    "label": "AI + Enterprise Software",
+    "title": "Especialistas en plataformas inteligentes",
+    "body": "Nuestro foco es construir soluciones enterprise que combinan inteligencia artificial con ingeniería de software robusta. No somos una consultora generalista — somos un equipo técnico con experiencia directa en proyectos de compliance, monitorización y automatización para grandes corporaciones.",
+    "col1": {
+      "label": "Stack",
+      "title": "Full-stack + AI",
+      "body": "Next.js, NestJS, PostgreSQL, OpenAI, Azure AI"
+    },
+    "col2": {
+      "label": "Metodología",
+      "title": "Scrum + ownership",
+      "body": "Sprints de 2 semanas con entregas incrementales"
+    }
+  },
+  "introCallout": "Este documento recoge nuestra propuesta para Novo Nordisk. El objetivo: diseñar y construir una Smart Monitoring & Compliance Platform que automatice la monitorización de gastos corporativos, detecte anomalías con IA y centralice toda la información en un único dashboard.",
+  "metrics": [
+    { "label": "Reducción tiempo revisión", "value": 70, "display": "70%", "desc": "Del tiempo de compliance automatizable con IA" },
+    { "label": "Tickets procesados", "value": 1000, "display": "1000+", "desc": "Capacidad diaria de procesamiento automático" },
+    { "label": "Tiempo de detección", "value": 3, "display": "<3 min", "desc": "Para flaggear anomalías vs. horas de revisión manual" },
+    { "label": "Fuente única", "value": 1, "display": "1", "desc": "Una sola plataforma para todo el compliance" }
+  ],
+  "puntoPartidaIntro": "Antes de proponer la solución, entendemos el problema. El proceso actual de compliance de gastos corporativos en Novo Nordisk presenta tres retos principales que generan ineficiencia operativa y riesgo.",
+  "puntoPartida": [
+    {
+      "title": "SAP Concur como fuente",
+      "body": "Los datos de gasto viven en SAP Concur, pero la plataforma no ofrece las herramientas analíticas ni de compliance necesarias. Los equipos extraen datos manualmente para analizarlos en hojas de cálculo, perdiendo trazabilidad y generando errores."
+    },
+    {
+      "title": "Ausencia de automatización",
+      "body": "No existe un sistema que aplique reglas de compliance automáticamente. Cada ticket se revisa de forma manual, lo que limita la capacidad de escalar el proceso y aumenta el riesgo de pasar por alto anomalías."
+    }
+  ],
+  "problems": [
+    {
+      "number": "01",
+      "title": "Monitorización manual",
+      "body": "Los equipos de compliance revisan manualmente tickets de gasto en SAP Concur, un proceso lento, propenso a errores y difícil de escalar. El 70% del tiempo se dedica a tareas repetitivas de revisión.",
+      "tag": "SAP CONCUR · REVISIÓN MANUAL · NO ESCALABLE"
+    },
+    {
+      "number": "02",
+      "title": "Sistemas desconectados",
+      "body": "La información vive en silos: SAP Concur por un lado, hojas de cálculo por otro. No existe una fuente única de verdad para el estado del compliance ni visibilidad en tiempo real.",
+      "tag": "SILOS DE DATOS · SIN VISIÓN ÚNICA · SIN TIEMPO REAL"
+    },
+    {
+      "number": "03",
+      "title": "Sin capacidad de detección inteligente",
+      "body": "No hay sistema de scoring de riesgo ni detección automática de anomalías. Las irregularidades se descubren por revisión humana o, peor, en auditorías posteriores cuando ya es tarde para actuar.",
+      "tag": "SIN AI · DETECCIÓN REACTIVA · RIESGO OPERATIVO"
+    }
+  ],
+  "objectives": [
+    {
+      "number": "01",
+      "title": "Automatizar la revisión de compliance",
+      "body": "Pasar de revisión manual ticket a ticket a un sistema de IA que clasifica, puntúa y prioriza automáticamente. Los equipos solo revisan los casos flaggeados."
+    },
+    {
+      "number": "02",
+      "title": "Centralizar toda la información en un dashboard",
+      "body": "Un único punto de verdad con KPIs de compliance en tiempo real, drill-down por ticket, historial de auditoría y exportación de informes."
+    },
+    {
+      "number": "03",
+      "title": "Detectar anomalías con IA en tiempo real",
+      "body": "Dos pipelines de inteligencia artificial — análisis de tickets y procesamiento de recibos — que detectan patrones sospechosos antes de que se conviertan en problemas."
+    },
+    {
+      "number": "04",
+      "title": "Integrar reglas de compliance configurables",
+      "body": "Un motor de reglas que permite definir políticas de gasto por país, umbrales dinámicos y alertas automáticas sin necesidad de desarrollo."
+    },
+    {
+      "number": "05",
+      "title": "Construir una plataforma escalable y mantenible",
+      "body": "Arquitectura moderna con Next.js, NestJS, PostgreSQL y servicios de Azure AI. Diseñada para crecer con las necesidades de Novo Nordisk sin reescribir."
+    }
+  ],
+  "pillars": [
+    {
+      "number": "01",
+      "name": "Data Ingestion",
+      "body": "Integración directa con SAP Concur API para extracción automática de tickets, procesamiento de recibos/fotos y normalización de datos en tiempo real."
+    },
+    {
+      "number": "02",
+      "name": "AI Analysis",
+      "body": "Clasificación de gastos con LLM (GPT-4), detección de anomalías, extracción OCR de recibos con Azure Document Intelligence y scoring de riesgo automático."
+    },
+    {
+      "number": "03",
+      "name": "Rules Engine",
+      "body": "Motor de reglas configurable con políticas de gasto por país, umbrales dinámicos y alertas automáticas. Sin necesidad de código para modificar reglas."
+    },
+    {
+      "number": "04",
+      "name": "Monitoring Dashboard",
+      "body": "Dashboard en tiempo real con KPIs de compliance, drill-down por ticket individual, estado de revisión y exportación de informes para auditoría."
+    },
+    {
+      "number": "05",
+      "name": "Workflow & Audit",
+      "body": "Cola de revisión priorizada por riesgo, flujos de aprobación configurables, audit trail completo y notificaciones integradas por email y Slack."
+    }
+  ],
+  "techStack": [
+    { "category": "Front-End", "items": "Next.js / React · TypeScript · Tailwind CSS · Recharts / D3" },
+    { "category": "AI Services", "items": "OpenAI GPT-4 · Azure Document Intelligence · Custom classification · LangChain" },
+    { "category": "Back-End", "items": "Node.js / NestJS · GraphQL + REST · Bull queues · Redis caching" },
+    { "category": "Data", "items": "PostgreSQL · Prisma ORM · TimescaleDB (analytics) · S3 storage" },
+    { "category": "Auth & Security", "items": "Azure AD / SSO · RBAC per tenant · Encrypted at rest · Audit logging" },
+    { "category": "Infrastructure", "items": "Azure Cloud · Docker / K8s · CI/CD (GitHub Actions) · Datadog monitoring" }
+  ],
+  "pipelines": {
+    "intro": "La plataforma incluye dos pipelines de inteligencia artificial que procesan información de forma complementaria:",
+    "pipeline1": {
+      "label": "Pipeline 1 — Ticket Analysis",
+      "steps": [
+        { "step": "Ingest", "body": "Extracción automática de tickets desde SAP Concur via API" },
+        { "step": "Extract", "body": "Parsing de campos, metadatos y contexto del gasto" },
+        { "step": "Classify", "body": "Categorización automática con GPT-4 según políticas" },
+        { "step": "Score", "body": "Evaluación de riesgo con scoring multi-factor" },
+        { "step": "Output", "body": "Dashboard de resultados y alertas automáticas" }
+      ]
+    },
+    "pipeline2": {
+      "label": "Pipeline 2 — Receipt Photos",
+      "steps": [
+        { "step": "Capture", "body": "Ingesta de imágenes de recibos adjuntas al ticket" },
+        { "step": "OCR", "body": "Extracción de texto con Azure Document Intelligence" },
+        { "step": "Validate", "body": "Cross-reference automático con datos del ticket" },
+        { "step": "Detect", "body": "Detección de discrepancias y anomalías" },
+        { "step": "Store", "body": "Archivo de evidencias con audit trail" }
+      ]
+    }
+  },
+  "phases": [
+    {
+      "step": "Fase 1",
+      "title": "Discovery & Requirements",
+      "body": "Análisis de procesos actuales, entrevistas con stakeholders, definición de alcance funcional y técnico. Entregable: documento de requisitos y arquitectura target."
+    },
+    {
+      "step": "Fase 2",
+      "title": "UX/UI Design",
+      "body": "Wireframes, diseño de interfaz, prototipado interactivo y validación con usuarios clave de compliance y management."
+    },
+    {
+      "step": "Fase 3",
+      "title": "Core Platform",
+      "body": "Desarrollo del backend, integración SAP Concur, motor de reglas básico y modelo de datos. La base técnica sobre la que se construye todo."
+    },
+    {
+      "step": "Fase 4",
+      "title": "AI Integration",
+      "body": "Implementación de los dos pipelines de IA: análisis de tickets (GPT-4) y procesamiento OCR de recibos (Azure Document Intelligence)."
+    },
+    {
+      "step": "Fase 5",
+      "title": "Dashboard & Reporting",
+      "body": "Interfaz de monitorización en tiempo real, KPIs de compliance, sistema de alertas, drill-down por ticket y exportación de informes."
+    },
+    {
+      "step": "Fase 6",
+      "title": "UAT & Launch",
+      "body": "Testing con usuarios finales del equipo de compliance, ajustes basados en feedback, deployment a producción y formación del equipo."
+    }
+  ],
+  "enfoque": {
+    "label": "Modelo de trabajo",
+    "title": "Scrum: sprints de 2 semanas con entregas incrementales",
+    "paragraphs": [
+      "Trabajamos en ciclos mensuales con planificación, ejecución, revisión y retrospectiva con el cliente. Cada sprint produce funcionalidad desplegable.",
+      "El equipo es una extensión de Novo Nordisk — no un proveedor externo que entrega al final. Visibilidad total en cada momento del proyecto."
+    ],
+    "before": {
+      "label": "Sin plataforma",
+      "title": "Revisión manual, silos, sin escalabilidad",
+      "body": "Equipos de compliance dedicando el 70% de su tiempo a tareas repetitivas. Datos en hojas de cálculo. Sin detección proactiva de anomalías."
+    },
+    "after": {
+      "label": "Con la plataforma",
+      "title": "Automatización, IA, visibilidad total",
+      "body": "Compliance automatizado con IA. Dashboard en tiempo real. Motor de reglas configurable. Detección proactiva de riesgos. Equipos focalizados en análisis estratégico."
+    },
+    "outro": "El ciclo incluye: Sprint Planning (definición de objetivos), Daily Standups (sincronización de 15 min), Sprint Review (demo al cliente), Retrospectiva (mejora continua), Client Sync (alineamiento semanal) y Deployment (release tras cada sprint)."
+  },
+  "squad": {
+    "fee": "A definir",
+    "note": "El squad se adapta a las necesidades de cada fase. Planificamos juntos al inicio de cada sprint qué recursos concretos se activan. El equipo escala o se ajusta según el momento del proyecto.",
+    "members": [
+      { "perfil": "Tech Lead / PM", "dedicacion": "100%", "responsabilidades": "Arquitectura, gestión de proyecto, punto de contacto principal con Novo Nordisk." },
+      { "perfil": "Full-Stack Developer", "dedicacion": "100%", "responsabilidades": "Desarrollo de la plataforma: frontend (Next.js), backend (NestJS), integraciones." },
+      { "perfil": "AI/ML Engineer", "dedicacion": "50%", "responsabilidades": "Diseño e implementación de los pipelines de IA, modelos de clasificación, OCR." },
+      { "perfil": "UX/UI Designer", "dedicacion": "50%", "responsabilidades": "Diseño de interfaz, wireframes, prototipado, testing con usuarios." },
+      { "perfil": "QA Engineer", "dedicacion": "25%", "responsabilidades": "Testing funcional, testing de integración, validación end-to-end." },
+      { "perfil": "DevOps", "dedicacion": "25%", "responsabilidades": "Infraestructura Azure, CI/CD, monitoring, seguridad." }
+    ]
+  },
+  "cases": [
+    {
+      "name": "Cargill",
+      "tag": "AI · COMPLIANCE · TRADING",
+      "body": "Plataforma de monitorización de compliance para operaciones globales de trading agrícola. Procesamiento automatizado de documentos regulatorios con IA."
+    },
+    {
+      "name": "Inditex",
+      "tag": "AI · SUPPLY CHAIN · AUDIT",
+      "body": "Sistema de auditoría automatizada de proveedores con procesamiento de documentos mediante IA. Gestión de compliance a escala global."
+    },
+    {
+      "name": "Dormakaba",
+      "tag": "IOT · ANALYTICS · DASHBOARD",
+      "body": "Dashboard de analítica en tiempo real para sistemas de control de acceso y seguridad. Procesamiento de datos IoT con visualización avanzada."
+    }
+  ],
+  "moreClients": "Roca Group, Catalana Occidente, Desigual, Grupo Mahou, entre otros.",
+  "nextSteps": [
+    {
+      "number": "01",
+      "title": "Validar alcance y requisitos",
+      "body": "Sesión de trabajo con el equipo de compliance de Novo Nordisk para revisar los procesos actuales, mapear requisitos específicos y confirmar prioridades.",
+      "status": "Pendiente de agendar"
+    },
+    {
+      "number": "02",
+      "title": "Discovery técnico",
+      "body": "Acceso al entorno SAP Concur para auditar APIs disponibles, estructura de datos de tickets y flujos de aprobación actuales.",
+      "status": "Pendiente de agendar"
+    },
+    {
+      "number": "03",
+      "title": "Prototipo interactivo",
+      "body": "Diseño y validación de un prototipo navegable de la plataforma. Permite al equipo de Novo Nordisk experimentar la UX antes de empezar el desarrollo.",
+      "status": "Disponible — Iniciar prototipo"
+    },
+    {
+      "number": "04",
+      "title": "Kickoff del proyecto",
+      "body": "Una vez validado el alcance y el prototipo, definimos fecha de arranque y asignamos el squad dedicado.",
+      "status": "Pendiente"
+    }
+  ],
+  "prototypeUrl": "/novovision-prototype/prototype/",
+  "footer": {
+    "brand": "Tailor Hub · AI + Enterprise Software",
+    "info": "Salvador Serrano — COO Modulor Studios — salvador@modulorstudios.com"
+  }
+}

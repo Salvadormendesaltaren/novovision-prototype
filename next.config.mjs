@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
-  basePath: "/novovision-prototype",
+  basePath: "/novovision-prototype/prototype",
   images: { unoptimized: true },
 };
 

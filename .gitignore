@@ -34,3 +34,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# deploy output
+/deploy/
+
+# content-hub build & deps
+content-hub/node_modules/
+content-hub/dist/
+content-hub/.vercel/
+content-hub/Assets/
+content-hub/files/
+content-hub/files.zip
